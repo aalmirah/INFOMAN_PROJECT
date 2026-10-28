@@ -1,0 +1,15 @@
+:root {
+  /* Color Palette */
+  --color-primary: #1E3A8A;
+  --color-secondary: #0EA5E9;
+  --bg-canvas: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --border-color: #E2E8F0;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  
+  /* Status Colors */
+  --status-active: #10B981;
+  --status-danger: #EF4444;
+  --status-warning: #F59E0B;
+}
