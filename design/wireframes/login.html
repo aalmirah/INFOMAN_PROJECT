@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE Inc. ERP | Sign in</title>
+    <link rel="stylesheet" href="../css/styles.css">
+  </head>
+  <body>
+    <main class="auth-layout">
+      <section class="auth-card" aria-labelledby="login-title">
+        <header class="auth-header">
+          <a class="brand" href="index.html">
+            <span class="brand-mark" aria-hidden="true">H</span>
+            <span>HOPE Inc. ERP</span>
+          </a>
+          <h1 id="login-title">Sign In</h1>
+          <p>Sign in to your Hope account.</p>
+        </header>
+
+        <div class="status-note" role="note">
+          <strong>Access approval</strong>
+          <span>New accounts remain User / Inactive until a Superadmin approves access.</span>
+        </div>
+
+        <form class="form-stack" action="#" method="post" aria-describedby="login-help">
+          <p class="form-help" id="login-help">Use your approved Hope account credentials.</p>
+          <div class="field">
+            <label for="login-email">Email address <span class="required" aria-hidden="true">*</span></label>
+            <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required aria-describedby="login-email-help">
+            <p class="form-help" id="login-email-help">Enter the email used for your approved account.</p>
+          </div>
+
+          <div class="field">
+            <label for="login-password">Password <span class="required" aria-hidden="true">*</span></label>
+            <div class="input-with-action">
+              <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required aria-describedby="login-password-help">
+              <button class="input-action" type="button" data-password-toggle="login-password" aria-controls="login-password" aria-label="Show password">Show</button>
+            </div>
+            <p class="form-help" id="login-password-help">Passwords are case-sensitive.</p>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox" for="remember-me">
+              <input id="remember-me" name="remember" type="checkbox" aria-describedby="remember-help">
+              Remember me
+            </label>
+            <a href="reset-password.html">Forgot password?</a>
+          </div>
+          <p class="form-help" id="remember-help">Do not use Remember me on a shared device.</p>
+
+          <div class="form-actions">
+            <button class="button-primary" type="submit">Sign In</button>
+            <div class="form-divider" aria-hidden="true">or</div>
+            <button class="sso-button" type="button">Continue with Google</button>
+          </div>
+        </form>
+
+        <div class="status-note" role="status" aria-live="polite">
+          <strong>Account status messages</strong>
+          <span>Invalid credentials show a neutral error. Pending or blocked status appears only after identity proofing.</span>
+        </div>
+        <p class="auth-footer">Need an account? <a href="register.html">Register here</a>.</p>
+      </section>
+    </main>
+    <script>
+      document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+        toggle.addEventListener("click", () => {
+          const input = document.getElementById(toggle.dataset.passwordToggle);
+          const isPassword = input.type === "password";
+          input.type = isPassword ? "text" : "password";
+          toggle.textContent = isPassword ? "Hide" : "Show";
+          toggle.setAttribute("aria-label", `${isPassword ? "Hide" : "Show"} password`);
+        });
+      });
+    </script>
+  </body>
+</html>
