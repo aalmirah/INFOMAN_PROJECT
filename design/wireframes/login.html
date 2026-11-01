@@ -14,53 +14,48 @@
             <span class="brand-mark" aria-hidden="true">H</span>
             <span>HOPE Inc. ERP</span>
           </a>
-          <h1 id="login-title">Sign In</h1>
-          <p>Sign in to your Hope account.</p>
+          <h1 id="login-title">Welcome back</h1>
+          <p>Enter your credentials to access HOPE Inc. ERP.</p>
         </header>
 
-        <div class="status-note" role="note">
-          <strong>Access approval</strong>
-          <span>New accounts remain User / Inactive until a Superadmin approves access.</span>
-        </div>
-
-        <form class="form-stack" action="#" method="post" aria-describedby="login-help">
-          <p class="form-help" id="login-help">Use your approved Hope account credentials.</p>
+        <form class="form-stack" action="#" method="post">
           <div class="field">
             <label for="login-email">Email address <span class="required" aria-hidden="true">*</span></label>
-            <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required aria-describedby="login-email-help">
-            <p class="form-help" id="login-email-help">Enter the email used for your approved account.</p>
+            <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
           </div>
 
           <div class="field">
             <label for="login-password">Password <span class="required" aria-hidden="true">*</span></label>
             <div class="input-with-action">
-              <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required aria-describedby="login-password-help">
+              <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
               <button class="input-action" type="button" data-password-toggle="login-password" aria-controls="login-password" aria-label="Show password">Show</button>
             </div>
-            <p class="form-help" id="login-password-help">Passwords are case-sensitive.</p>
           </div>
 
           <div class="form-options">
             <label class="checkbox" for="remember-me">
-              <input id="remember-me" name="remember" type="checkbox" aria-describedby="remember-help">
-              Remember me
+              <input id="remember-me" name="remember" type="checkbox">
+              Remember Me
             </label>
             <a href="reset-password.html">Forgot password?</a>
           </div>
-          <p class="form-help" id="remember-help">Do not use Remember me on a shared device.</p>
 
           <div class="form-actions">
-            <button class="button-primary" type="submit">Sign In</button>
-            <div class="form-divider" aria-hidden="true">or</div>
-            <button class="sso-button" type="button">Continue with Google</button>
+            <button class="button-primary" type="submit">Sign in</button>
+            <div class="form-divider" role="separator" aria-label="Or continue with Google">OR</div>
+            <button class="sso-button" type="button">
+              <svg class="google-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="#4285F4" d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"/>
+                <path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"/>
+                <path fill="#FBBC05" d="M6.54 13.58a5.85 5.85 0 0 1 0-3.16V7.89H3.3a9.5 9.5 0 0 0 0 8.22l3.24-2.53Z"/>
+                <path fill="#EA4335" d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.49 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53C7.31 8.11 9.46 6.39 12 6.39Z"/>
+              </svg>
+              Continue with Google
+            </button>
           </div>
         </form>
 
-        <div class="status-note" role="status" aria-live="polite">
-          <strong>Account status messages</strong>
-          <span>Invalid credentials show a neutral error. Pending or blocked status appears only after identity proofing.</span>
-        </div>
-        <p class="auth-footer">Need an account? <a href="register.html">Register here</a>.</p>
+        <p class="auth-footer">Don't have an account? <a href="register.html">Register</a></p>
       </section>
     </main>
     <script>

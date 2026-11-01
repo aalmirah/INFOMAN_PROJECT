@@ -1,33 +1,41 @@
 :root {
   /* --- 1. Color Tokens --- */
-  --color-primary-600: #1E3A8A;
-  --color-primary-700: #1E293B;
-  --color-primary-50: #EFF6FF;
+  --color-black: #000000;
+  --color-pink: #FCAFC1;
+  --color-teal: #3D7584;
+  --color-teal-light: #89B8BF;
+  --color-white: #FFFFFF;
+
+  --color-primary: var(--color-teal);
+  --color-primary-600: var(--color-teal);
+  --color-primary-700: #315E6A;
+  --color-primary-50: #F2F8F9;
 
   /* Explicit Secondary Tokens */
-  --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-50: #F1F5F9;
+  --color-secondary-600: var(--color-teal-light);
+  --color-secondary-700: var(--color-teal);
+  --color-secondary-50: #F3FAFB;
 
-  --color-sidebar-dark: #0F172A;
-  --color-sidebar-hover: #1E293B;
+  --color-sidebar-dark: var(--color-teal);
+  --color-sidebar-hover: #315E6A;
 
-  --color-bg-cream: #F8FAFC;
-  --color-bg-surface: #FFFFFF;
-  --color-border-subtle: #E2E8F0;
+  --color-bg-cream: var(--color-white);
+  --color-bg-surface: var(--color-white);
+  --color-border-subtle: var(--color-teal-light);
 
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-disabled: #94A3B8;
+  --color-text-primary: var(--color-black);
+  --color-text-secondary: #315E6A;
+  --color-text-disabled: #6B8C92;
 
   /* Semantic Colors */
   --color-success-600: #16A34A;
   --color-danger-600: #DC2626;
   --color-warning-600: #D97706;
-  --color-info-600: #2563EB;
+  --color-info-600: var(--color-teal);
 
   /* Role Colors */
   --color-role-superadmin: #7C3AED;
+  --color-role-superadmin-gold: #B7791F;
   --color-role-admin: #0284C7;
   --color-role-user: #475569;
 

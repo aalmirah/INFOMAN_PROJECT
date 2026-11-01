@@ -3,75 +3,87 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="HOPE Inc. ERP student and operations management platform.">
-    <title>HOPE Inc. ERP | Welcome</title>
+    <meta name="description" content="HOPE, Inc. ERP business operations platform.">
+    <title>HOPE, Inc. ERP | Welcome</title>
     <link rel="stylesheet" href="../css/styles.css">
   </head>
-  <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <a class="brand" href="index.html" aria-label="HOPE Inc. ERP home">
-          <span class="brand-mark" aria-hidden="true">H</span>
-          <span>HOPE Inc. ERP</span>
-        </a>
-        <nav class="site-nav" aria-label="Primary navigation">
-          <a class="header-link" href="#projects">Projects</a>
-          <a class="header-link" href="#features">Features</a>
-          <a class="header-link" href="login.html">Sign in</a>
-        </nav>
+  <body class="landing-body">
+    <span class="organic-shape organic-shape-pink" aria-hidden="true"></span>
+    <span class="organic-shape organic-shape-teal" aria-hidden="true"></span>
+    <span class="organic-shape organic-shape-blue" aria-hidden="true"></span>
+    <span class="organic-shape organic-shape-bottom" aria-hidden="true"></span>
+    <span class="organic-shape organic-shape-bottom-right" aria-hidden="true"></span>
+    <div class="page-shell landing-shell">
+      <header class="site-header site-header-pill">
+        <div class="site-header-inner">
+          <a class="brand" href="index.html" aria-label="HOPE, Inc. ERP home">
+            <span class="brand-mark" aria-hidden="true">H</span>
+            <span>Hope, Inc. ERP</span>
+          </a>
+          <nav class="site-nav" aria-label="Primary navigation">
+            <a class="header-link" href="login.html">Sign In</a>
+            <a class="button button-primary header-cta" href="register.html">Register</a>
+          </nav>
+        </div>
       </header>
 
-      <main class="hero">
-        <section aria-labelledby="hero-title">
-          <p class="eyebrow">Student and operations management</p>
-          <h1 id="hero-title">A clearer way to support every student journey.</h1>
-          <p class="hero-copy">
-            HOPE Inc. ERP brings student records, employee access, reports, and
-            day-to-day operations into one secure workspace.
-          </p>
-          <div class="button-row">
-            <a class="button button-primary" href="register.html">Create an account</a>
-            <a class="button button-secondary" href="login.html">Sign in to ERP</a>
+      <main>
+        <section class="hero landing-hero" aria-labelledby="hero-title">
+          <div>
+            <p class="eyebrow">One unified system</p>
+            <h1 id="hero-title">Run your entire business with confidence</h1>
+            <p class="hero-copy">Hope, Inc. ERP unifies Customer Management, Product Catalog, Human Resources, and Sales into one powerful platform. Built for teams of every size.</p>
+            <div class="button-row">
+              <a class="button button-primary" href="login.html">Sign In to Dashboard <span aria-hidden="true">→</span></a>
+              <a class="button button-outline" href="register.html">Register</a>
+            </div>
           </div>
+          <aside class="module-preview" aria-label="Core ERP modules">
+            <div class="preview-heading"><span class="preview-dot"></span><strong>Hope, Inc. ERP Dashboard</strong><span class="window-dots" aria-hidden="true">•••</span></div>
+            <div class="preview-grid">
+              <a class="preview-tile" href="login.html">
+                <span class="preview-icon preview-icon-neutral" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.2"></circle><path d="M5.5 19c.7-3.1 2.8-4.8 6.5-4.8s5.8 1.7 6.5 4.8"></path></svg>
+                </span>
+                <strong>Customers</strong><small>Manage contacts &amp; accounts</small>
+              </a>
+              <a class="preview-tile" href="login.html">
+                <span class="preview-icon preview-icon-green" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="m3.5 7 8.5-3 8.5 3-8.5 3-8.5-3Z"></path><path d="M3.5 7v9l8.5 3 8.5-3V7M12 10v9"></path></svg>
+                </span>
+                <strong>Products</strong><small>Catalog &amp; inventory</small>
+              </a>
+              <a class="preview-tile" href="login.html">
+                <span class="preview-icon preview-icon-teal" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><circle cx="8" cy="8" r="2.5"></circle><path d="M3.5 18c.5-2.7 2-4.2 4.5-4.2s4 1.5 4.5 4.2M15 5.5h5.5M17.75 3v5M14.5 12h6M14.5 16h6M14.5 20h6"></path></svg>
+                </span>
+                <strong>Human Resources</strong><small>Employees &amp; payroll</small>
+              </a>
+              <a class="preview-tile" href="login.html">
+                <span class="preview-icon preview-icon-pink" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false"><path d="m4 17 5-5 3 3 7-8"></path><path d="M4 20V4"></path></svg>
+                </span>
+                <strong>Sales</strong><small>Orders &amp; revenue</small>
+              </a>
+            </div>
+          </aside>
         </section>
 
-        <aside class="feature-panel" id="features" aria-labelledby="feature-title">
-          <h2 id="feature-title">Built for HOPE Inc. teams</h2>
-          <ul class="feature-list">
-            <li><span class="feature-icon" aria-hidden="true">01</span><span><strong>Student-first records</strong>Keep essential information organized and accessible.</span></li>
-            <li><span class="feature-icon" aria-hidden="true">02</span><span><strong>Role-based access</strong>Every new account starts as User / Inactive until approved.</span></li>
-            <li><span class="feature-icon" aria-hidden="true">03</span><span><strong>Actionable reporting</strong>Turn activity and operational data into confident decisions.</span></li>
-          </ul>
-        </aside>
-      </main>
+        <section class="growth-section" aria-labelledby="growth-title">
+          <div class="accent-line"></div>
+          <div><h2 id="growth-title">Everything you need to grow</h2><p>Four core modules. Three user roles. One unified system.</p></div>
+          <div class="accent-line"></div>
+        </section>
 
-      <section class="project-section" id="projects" aria-labelledby="projects-title">
-        <div class="section-heading">
-          <p class="eyebrow">Explore the workspace</p>
-          <h2 id="projects-title">Projects built for HOPE Inc. teams</h2>
-          <p>Choose a workspace to see how ERP tools support daily operations.</p>
-        </div>
-        <div class="project-container">
-          <article class="project-card">
-            <span class="project-icon" aria-hidden="true">01</span>
-            <h3>Student Records</h3>
-            <p>Keep student profiles, progress, and support information organized.</p>
-            <a href="login.html">View workspace</a>
-          </article>
-          <article class="project-card">
-            <span class="project-icon" aria-hidden="true">02</span>
-            <h3>People &amp; Access</h3>
-            <p>Manage employees, roles, approvals, and secure account access.</p>
-            <a href="register.html">Request access</a>
-          </article>
-          <article class="project-card">
-            <span class="project-icon" aria-hidden="true">03</span>
-            <h3>Reports &amp; Activity</h3>
-            <p>Turn operational activity into clear reports and next steps.</p>
-            <a href="login.html">Explore reports</a>
-          </article>
-        </div>
-      </section>
+        <section class="project-section" aria-label="Core modules">
+          <div class="project-container">
+            <article class="project-card"><span class="project-icon">01</span><h3>Customer Management</h3><p>Track relationships, contacts, and account activity.</p><a href="login.html">Open module</a></article>
+            <article class="project-card"><span class="project-icon">02</span><h3>Product Catalog</h3><p>Keep products, pricing, and inventory organized.</p><a href="login.html">Open module</a></article>
+            <article class="project-card"><span class="project-icon">03</span><h3>Human Resources</h3><p>Support teams with clear employee workflows.</p><a href="login.html">Open module</a></article>
+            <article class="project-card"><span class="project-icon">04</span><h3>Sales</h3><p>Move opportunities from pipeline to completed orders.</p><a href="login.html">Open module</a></article>
+          </div>
+        </section>
+      </main>
     </div>
   </body>
 </html>

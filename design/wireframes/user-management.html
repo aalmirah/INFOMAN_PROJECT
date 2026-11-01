@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE, Inc. ERP | User Management</title>
+    <link rel="stylesheet" href="../css/styles.css">
+  </head>
+  <body class="app-body">
+    <div class="app-shell">
+      <aside class="app-sidebar">
+        <a class="brand brand-on-dark" href="index.html"><span class="brand-mark">H</span><span>Hope, Inc. ERP</span></a>
+        <nav class="app-nav app-nav-grouped" aria-label="Administration navigation">
+          <div><span class="nav-group-label">Dashboard</span><a class="app-nav-link" href="dashboard.html">Dashboard</a></div>
+          <div><span class="nav-group-label">Administration</span><a class="app-nav-link is-active" href="user-management.html">User Management</a><a class="app-nav-link" href="#settings">System Settings</a></div>
+        </nav>
+      </aside>
+      <main class="app-main">
+        <header class="app-header"><div><p class="eyebrow">Administration</p><h1>User Management</h1></div><a class="button button-primary" href="#invite">Invite user</a></header>
+        <section class="table-card" aria-labelledby="users-title">
+          <div class="table-toolbar"><div><h2 id="users-title">User directory</h2><p class="form-help">Manage access, roles, and permissions.</p></div><div class="table-filters"><input class="table-search" type="search" placeholder="Search users by name or email..." aria-label="Search users by name or email"><label class="sr-only" for="role-filter">Filter by role</label><select id="role-filter" class="role-filter"><option>All roles</option><option>Superadmin</option><option>Admin</option><option>User</option></select></div></div>
+          <div class="table-wrap">
+            <table>
+              <caption class="sr-only">HOPE Inc. ERP user directory with roles, statuses, and available actions</caption>
+              <thead><tr><th scope="col">User</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span>Actions</th></tr></thead>
+              <tbody>
+                <tr><td><span class="user-cell"><span><strong>Michael Evans</strong><small>michael@hope.com</small></span></span></td><td><span class="role-badge role-superadmin">Superadmin</span></td><td><span class="status-badge status-active">Active</span></td><td><button class="table-action danger-action" type="button">Block</button><button class="table-action" type="button" data-modal-open="rights-dialog">Rights</button></td></tr>
+                <tr><td><span class="user-cell"><span><strong>John Doe</strong><small>john.doe@hope.com</small></span></span></td><td><span class="role-badge role-user">User</span></td><td><span class="status-badge status-blocked">Blocked</span></td><td><button class="table-action" type="button">Unblock</button><button class="table-action" type="button" data-modal-open="rights-dialog">Rights</button></td></tr>
+                <tr><td><span class="user-cell"><span><strong>Anna Santos</strong><small>anna@hope.com</small></span></span></td><td><span class="role-badge role-admin">Admin</span></td><td><span class="status-badge status-active">Active</span></td><td><button class="table-action danger-action" type="button">Block</button><button class="table-action" type="button" data-modal-open="rights-dialog">Rights</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <dialog class="rights-dialog" id="rights-dialog" aria-labelledby="rights-title">
+      <form method="dialog">
+        <button class="dialog-close" value="cancel" aria-label="Close rights dialog">×</button>
+        <p class="eyebrow">Permissions</p><h2 id="rights-title">Manage User Rights &amp; Permissions</h2>
+        <p class="rights-context">Editing privileges for: <strong>John Doe (User)</strong></p>
+        <fieldset><legend>Module access</legend><label><input type="checkbox"> Access Customer Management module</label><label><input type="checkbox"> Access Product Catalog &amp; Inventory</label><label><input type="checkbox"> Access Human Resources &amp; Payroll</label><label><input type="checkbox"> Access Sales &amp; Revenue Pipeline</label><label><input type="checkbox"> Grant Admin Privileges</label></fieldset>
+        <div class="dialog-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-primary" value="save">Save Rights</button></div>
+      </form>
+    </dialog>
+    <script>
+      document.querySelectorAll("[data-modal-open]").forEach((button) => button.addEventListener("click", () => document.getElementById(button.dataset.modalOpen).showModal()));
+    </script>
+  </body>
+</html>

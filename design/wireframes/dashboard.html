@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE, Inc. ERP | Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+  </head>
+  <body class="app-body" data-role="superadmin">
+    <div class="app-shell">
+      <aside class="app-sidebar">
+        <a class="brand brand-on-dark" href="index.html"><span class="brand-mark">H</span><span>Hope, Inc. ERP</span></a>
+        <nav class="app-nav app-nav-grouped" aria-label="Dashboard navigation">
+          <div><span class="nav-group-label">Dashboard</span><a class="app-nav-link is-active" href="dashboard.html">Dashboard</a></div>
+          <div><span class="nav-group-label">Modules</span><a class="app-nav-link" href="#customers">Customers</a><a class="app-nav-link" href="#products">Products</a><a class="app-nav-link" href="#hr">Human Resources</a><a class="app-nav-link" href="#sales">Sales</a></div>
+          <div><span class="nav-group-label">Administration</span><a class="app-nav-link" data-roles="superadmin admin" href="user-management.html">User Management</a><a class="app-nav-link" data-roles="superadmin" href="#settings">System Settings</a></div>
+        </nav>
+      </aside>
+      <main class="app-main">
+        <header class="app-header"><div><p class="eyebrow">Overview</p><h1>Dashboard</h1></div><span class="role-badge role-superadmin">SUPERADMIN</span></header>
+        <section class="welcome-banner" aria-labelledby="welcome-title"><h2 id="welcome-title">Welcome back!</h2><p>You have full system access. You can manage all modules and assign roles to any user.</p></section>
+        <section class="stats-grid" id="dashboard-metrics" aria-label="Business summary">
+          <article class="stat-card"><span>Total Customers</span><strong class="metric-placeholder" aria-label="Value not available">—</strong><small class="metric-placeholder">Awaiting data</small></article>
+          <article class="stat-card"><span>Products</span><strong class="metric-placeholder" aria-label="Value not available">—</strong><small class="metric-placeholder">Awaiting data</small></article>
+          <article class="stat-card"><span>Open Orders</span><strong class="metric-placeholder" aria-label="Value not available">—</strong><small class="metric-placeholder">Awaiting data</small></article>
+          <article class="stat-card"><span>Revenue (MTD)</span><strong class="metric-placeholder" aria-label="Value not available">—</strong><small class="metric-placeholder">Awaiting data</small></article>
+        </section>
+        <section class="dashboard-section" id="module-actions" aria-labelledby="quick-actions-title"><div class="section-heading"><p class="eyebrow">Shortcuts</p><h2 id="quick-actions-title">Quick Actions</h2><p>Jump directly into the tools you use most.</p></div><div class="quick-actions">
+          <a class="quick-action" href="#customers">
+            <span class="quick-action-icon quick-action-icon-neutral" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.2"></circle><path d="M5.5 19c.7-3.1 2.8-4.8 6.5-4.8s5.8 1.7 6.5 4.8"></path></svg></span>
+            <strong>View Customers</strong><span>Manage relationships and contacts.</span>
+          </a>
+          <a class="quick-action" href="#products">
+            <span class="quick-action-icon quick-action-icon-green" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m3.5 7 8.5-3 8.5 3-8.5 3-8.5-3Z"></path><path d="M3.5 7v9l8.5 3 8.5-3V7M12 10v9"></path></svg></span>
+            <strong>Manage Products</strong><span>Update catalog and inventory.</span>
+          </a>
+          <a class="quick-action" href="#hr">
+            <span class="quick-action-icon quick-action-icon-teal" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="8" cy="8" r="2.5"></circle><path d="M3.5 18c.5-2.7 2-4.2 4.5-4.2s4 1.5 4.5 4.2M15 5.5h5.5M17.75 3v5M14.5 12h6M14.5 16h6M14.5 20h6"></path></svg></span>
+            <strong>Human Resources</strong><span>Review employee records.</span>
+          </a>
+          <a class="quick-action" href="#sales">
+            <span class="quick-action-icon quick-action-icon-pink" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="m4 17 5-5 3 3 7-8"></path><path d="M4 20V4"></path></svg></span>
+            <strong>Sales Pipeline</strong><span>Track opportunities and orders.</span>
+          </a>
+          <a class="quick-action" data-roles="superadmin admin" href="user-management.html">
+            <span class="quick-action-icon quick-action-icon-lilac" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3 4.5 6v5.5c0 4.5 3 7.7 7.5 9.5 4.5-1.8 7.5-5 7.5-9.5V6L12 3Z"></path><path d="m8.5 12 2.2 2.2 4.8-5"></path></svg></span>
+            <strong>Manage Users</strong><span>Review roles and permissions.</span>
+          </a>
+          <a class="quick-action" data-roles="superadmin" href="#settings">
+            <span class="quick-action-icon quick-action-icon-slate" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"></path><path d="m19.4 15 .1.1-1.6 2.8-.2-.1a2.1 2.1 0 0 0-2.2.1l-.2.1a2.1 2.1 0 0 0-1 1.8v.2H9v-.2a2.1 2.1 0 0 0-1-1.8l-.2-.1a2.1 2.1 0 0 0-2.2-.1l-.2.1-1.6-2.8.1-.1a2.1 2.1 0 0 0 1.1-1.9v-.3a2.1 2.1 0 0 0-1.1-1.9l-.1-.1 1.6-2.8.2.1a2.1 2.1 0 0 0 2.2-.1l.2-.1a2.1 2.1 0 0 0 1-1.8V5h3.2v.2a2.1 2.1 0 0 0 1 1.8l.2.1a2.1 2.1 0 0 0 2.2.1l.2-.1 1.6 2.8-.1.1a2.1 2.1 0 0 0-1.1 1.9v.3a2.1 2.1 0 0 0 1.1 1.9Z"></path></svg></span>
+            <strong>System Settings</strong><span>Configure ERP preferences.</span>
+          </a>
+        </div></section>
+      </main>
+    </div>
+    <script>
+      const role = document.body.dataset.role;
+      document.querySelectorAll("[data-roles]").forEach((item) => {
+        if (!item.dataset.roles.split(" ").includes(role)) { item.setAttribute("aria-disabled", "true"); item.classList.add("is-restricted"); if (item.classList.contains("app-nav-link")) item.hidden = true; else item.removeAttribute("href"); }
+      });
+    </script>
+  </body>
+</html>
