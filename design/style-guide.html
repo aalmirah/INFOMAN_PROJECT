@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE, Inc. ERP | Visual Style Guide</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+      .style-guide { max-width: var(--content-max-width); margin: 0 auto; padding: var(--space-8) var(--layout-padding-desktop); }
+      .style-guide header { margin-bottom: var(--space-8); }
+      .style-guide h1, .style-guide h2 { margin: 0 0 var(--space-3); }
+      .style-guide section { margin-top: var(--space-8); }
+      .swatch-grid, .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-4); }
+      .swatch, .component-card { border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-surface); box-shadow: var(--shadow-sm); overflow: hidden; }
+      .swatch-color { min-height: 4rem; padding: var(--space-3); display: flex; align-items: end; font: var(--font-caption); }
+      .swatch-copy, .component-card { padding: var(--space-4); }
+      .swatch-copy strong, .swatch-copy code { display: block; }
+      .swatch-copy code { margin-top: var(--space-1); color: var(--text-secondary); }
+      .demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+      .demo-button { min-width: var(--touch-target-min); min-height: var(--touch-target-min); padding: var(--space-3) var(--space-4); border: 0; border-radius: var(--radius-md); font: var(--font-button); cursor: pointer; }
+      .demo-primary { background: var(--color-primary); color: var(--bg-surface); }
+      .demo-secondary { background: var(--color-secondary); color: var(--text-primary); }
+      .demo-danger { background: var(--status-danger); color: var(--text-primary); }
+      .demo-ghost { border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-primary); }
+      .demo-input { width: 100%; min-height: var(--control-height); padding: var(--space-3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); }
+      .demo-label { display: grid; gap: var(--space-2); font-weight: 600; }
+      .badge { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--touch-target-min); padding: 0 var(--space-3); border-radius: var(--radius-pill); font-weight: 600; }
+      .badge-active { background: var(--status-active); color: var(--text-primary); }
+      .badge-danger { background: var(--status-danger); color: var(--text-primary); }
+      .badge-warning { background: var(--status-warning); color: var(--text-primary); }
+      .badge-role { background: var(--color-role-superadmin); color: var(--bg-surface); }
+      .demo-table { width: 100%; border-collapse: collapse; }
+      .demo-table th, .demo-table td { padding: var(--space-3); border-bottom: 1px solid var(--border-color); text-align: left; }
+      .demo-table tbody tr:hover { background: var(--color-sidebar-hover); color: var(--bg-surface); }
+      .demo-table .deleted { background: var(--color-deleted-shade); color: var(--text-primary); }
+      .demo-alert { padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); }
+      .demo-success { background: var(--status-active); color: var(--text-primary); }
+      .demo-error { background: var(--status-danger); color: var(--text-primary); }
+      .demo-info { background: var(--color-info); color: var(--text-primary); }
+      .demo-dialog { border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-surface); box-shadow: var(--shadow-lg); }
+      .demo-dialog footer { display: flex; justify-content: end; gap: var(--space-3); padding: var(--space-4); border-top: 1px solid var(--border-color); }
+      .stamp { color: var(--text-secondary); font: var(--font-caption); }
+      @media (max-width: 640px) { .style-guide { padding: var(--space-6) var(--layout-padding-mobile); } .demo-table { min-width: 36rem; } .table-wrap { overflow-x: auto; } }
+    </style>
+  </head>
+  <body>
+    <main class="style-guide">
+      <header>
+        <p class="eyebrow">HOPE, Inc. ERP</p>
+        <h1>Visual style guide</h1>
+        <p class="hero-copy">Canonical palette, typography, and core component states for implementation review.</p>
+      </header>
+
+      <section aria-labelledby="colors-title">
+        <h2 id="colors-title">Color tokens</h2>
+        <div class="swatch-grid">
+          <article class="swatch"><div class="swatch-color" style="background:var(--color-primary);color:var(--bg-surface)">Primary</div><div class="swatch-copy"><strong>Brand action</strong><code>--color-primary</code></div></article>
+          <article class="swatch"><div class="swatch-color" style="background:var(--color-secondary);color:var(--text-primary)">Secondary</div><div class="swatch-copy"><strong>Info accent</strong><code>--color-secondary</code></div></article>
+          <article class="swatch"><div class="swatch-color" style="background:var(--bg-canvas);color:var(--text-primary)">Canvas</div><div class="swatch-copy"><strong>Page background</strong><code>--bg-canvas</code></div></article>
+          <article class="swatch"><div class="swatch-color" style="background:var(--status-active);color:var(--text-primary)">Active</div><div class="swatch-copy"><strong>Success state</strong><code>--status-active</code></div></article>
+          <article class="swatch"><div class="swatch-color" style="background:var(--status-danger);color:var(--text-primary)">Danger</div><div class="swatch-copy"><strong>Delete/block</strong><code>--status-danger</code></div></article>
+          <article class="swatch"><div class="swatch-color" style="background:var(--status-warning);color:var(--text-primary)">Warning</div><div class="swatch-copy"><strong>Pending state</strong><code>--status-warning</code></div></article>
+        </div>
+      </section>
+
+      <section aria-labelledby="buttons-title">
+        <h2 id="buttons-title">Buttons</h2>
+        <div class="component-card demo-row">
+          <button class="demo-button demo-primary" type="button">Save changes</button>
+          <button class="demo-button demo-secondary" type="button">View report</button>
+          <button class="demo-button demo-danger" type="button">Delete record</button>
+          <button class="demo-button demo-ghost" type="button">Cancel</button>
+          <button class="demo-button demo-ghost" type="button" aria-label="More actions">⋯</button>
+        </div>
+      </section>
+
+      <section aria-labelledby="forms-title">
+        <h2 id="forms-title">Form controls</h2>
+        <div class="component-grid">
+          <article class="component-card"><label class="demo-label" for="demo-input">Text input<input class="demo-input" id="demo-input" type="text" placeholder="Enter a value"></label></article>
+          <article class="component-card"><label class="demo-label" for="demo-select">Select<select class="demo-input" id="demo-select"><option>Choose a role</option><option>Admin</option></select></label></article>
+          <article class="component-card"><label class="demo-label" for="demo-error">Inline error<input class="demo-input" id="demo-error" aria-invalid="true" aria-describedby="demo-error-copy" type="email" value="invalid"></label><p id="demo-error-copy" class="stamp">Enter a valid email address.</p></article>
+        </div>
+      </section>
+
+      <section aria-labelledby="status-title">
+        <h2 id="status-title">Status and roles</h2>
+        <div class="component-card demo-row">
+          <span class="badge badge-active">✓ Active</span>
+          <span class="badge badge-danger">× Blocked</span>
+          <span class="badge badge-warning">! Pending</span>
+          <span class="badge badge-role">★ Superadmin</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="table-title">
+        <h2 id="table-title">Data table</h2>
+        <div class="component-card table-wrap">
+          <table class="demo-table">
+            <caption>Recent activity</caption>
+            <thead><tr><th>Timestamp</th><th>User</th><th>Action</th><th>Status</th></tr></thead>
+            <tbody><tr><td>Today</td><td>Alex Morgan</td><td>Updated report</td><td><span class="badge badge-active">✓ Active</span></td></tr><tr class="deleted"><td>Yesterday</td><td>Jamie Lee</td><td>Archived record</td><td>Deleted</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="feedback-title">
+        <h2 id="feedback-title">Feedback and dialog</h2>
+        <div class="component-grid">
+          <div class="component-card"><div class="demo-alert demo-success" role="status" aria-live="polite">✓ Saved successfully</div></div>
+          <div class="component-card"><div class="demo-alert demo-error" role="alert">× Unable to delete. Try again.</div></div>
+          <div class="component-card demo-dialog" role="dialog" aria-labelledby="delete-title"><div class="component-card"><h3 id="delete-title">Delete record?</h3><p>This action will soft-delete the selected record.</p></div><footer><button class="demo-button demo-ghost" type="button">Cancel</button><button class="demo-button demo-danger" type="button">Confirm delete</button></footer></div>
+        </div>
+      </section>
+
+      <p class="stamp">CREATED / EDITED / DELETED · user · date</p>
+    </main>
+  </body>
+</html>
