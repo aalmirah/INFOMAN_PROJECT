@@ -1,14 +1,77 @@
-import { createClient } from "@supabase/supabase-js";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+const MAX_REQUEST_BYTES = 16 * 1024;
+
+async function readRequestBody(request: Request): Promise<string | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_REQUEST_BYTES) {
+      await reader.cancel();
+      return null;
+    }
+
+    chunks.push(value);
+  }
+
+  const body = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(body);
+}
+
 export async function POST(request: Request): Promise<Response> {
+  const origin = request.headers.get("origin");
+  let requestOrigin: string;
+
+  try {
+    requestOrigin = origin ? new URL(origin).origin : "";
+  } catch {
+    requestOrigin = "";
+  }
+
+  if (!requestOrigin || requestOrigin !== new URL(request.url).origin) {
+    return Response.json(
+      { error: "Registration request origin is not allowed." },
+      { status: 403 },
+    );
+  }
+
+  const contentLength = Number(request.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > MAX_REQUEST_BYTES) {
+    return Response.json(
+      { error: "Request body is too large." },
+      { status: 413 },
+    );
+  }
+
   let body: unknown;
 
   try {
-    body = await request.json();
+    const requestBody = await readRequestBody(request);
+    if (requestBody === null) {
+      return Response.json(
+        { error: "Request body is too large." },
+        { status: 413 },
+      );
+    }
+    body = JSON.parse(requestBody);
   } catch {
     return Response.json(
       { error: "Request body must be valid JSON." },
@@ -28,7 +91,6 @@ export async function POST(request: Request): Promise<Response> {
   const lastName =
     typeof body.lastName === "string" ? body.lastName.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim() : "";
-  const password = typeof body.password === "string" ? body.password : "";
   const fields: Record<string, string> = {};
 
   if (!firstName) fields.firstName = "First name is required.";
@@ -50,12 +112,6 @@ export async function POST(request: Request): Promise<Response> {
     fields.email = "Enter a valid email address.";
   }
 
-  if (!password.trim()) {
-    fields.password = "Password is required.";
-  } else if (Array.from(password).length < 6) {
-    fields.password = "Password must be at least 6 characters long.";
-  }
-
   if (Object.keys(fields).length > 0) {
     return Response.json(
       { error: "Please correct the invalid fields.", fields },
@@ -63,46 +119,33 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabasePublishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabasePublishableKey) {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SECRET_KEY
+  ) {
     return Response.json(
       { error: "Registration is not configured on the server." },
-      { status: 500 },
+      { status: 503 },
     );
   }
 
   try {
-    const supabase = createClient(supabaseUrl, supabasePublishableKey);
-    const { error } = await supabase.auth.signUp({
+    const supabase = getSupabaseAdminClient();
+    const { error } = await supabase.auth.admin.createUser({
       email,
-      password,
-      options: {
-        data: {
-          full_name: `${firstName} ${lastName}`,
-        },
+      email_confirm: true,
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName,
+        full_name: `${firstName} ${lastName}`,
       },
     });
 
     if (error) {
-      if (error.code === "weak_password") {
-        const reasons =
-          "reasons" in error && Array.isArray(error.reasons)
-            ? error.reasons.filter(
-                (reason): reason is string => typeof reason === "string",
-              )
-            : [];
-        const message = reasons.includes("length")
-          ? "Password must be at least 6 characters long."
-          : "Choose a different password and try again.";
-
-        return Response.json(
-          { error: message, fields: { password: message } },
-          { status: 400 },
-        );
-      }
+      console.error("Supabase Auth admin user creation failed.", {
+        status: error.status,
+        code: error.code,
+      });
 
       if (error.status === 429) {
         return Response.json(
@@ -111,23 +154,16 @@ export async function POST(request: Request): Promise<Response> {
         );
       }
 
-      if (error.status === 400) {
+      if (error.status && error.status >= 500) {
         return Response.json(
-          {
-            error:
-              "Registration details were rejected. Check the email and password requirements.",
-          },
-          { status: 400 },
+          { error: "Registration is temporarily unavailable." },
+          { status: 502 },
         );
       }
 
-      console.error("Supabase Auth signup failed.", {
-        status: error.status,
-        code: error.code,
-      });
       return Response.json(
-        { error: "Registration is temporarily unavailable." },
-        { status: 502 },
+        { error: "Registration could not be completed. Please try again." },
+        { status: 400 },
       );
     }
 
@@ -140,7 +176,7 @@ export async function POST(request: Request): Promise<Response> {
     );
   } catch (error) {
     console.error(
-      "Supabase Auth signup request could not be completed.",
+      "Supabase Auth admin request could not be completed.",
       error instanceof Error ? error.name : "Unknown error",
     );
     return Response.json(

@@ -10,7 +10,7 @@ type RegistrationStatus = {
 };
 
 type RegistrationFieldErrors = Partial<
-  Record<"firstName" | "lastName" | "email" | "password", string>
+  Record<"firstName" | "lastName" | "email", string>
 >;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -24,7 +24,6 @@ function getFieldErrors(value: unknown): RegistrationFieldErrors {
     ...(typeof value.firstName === "string" && { firstName: value.firstName }),
     ...(typeof value.lastName === "string" && { lastName: value.lastName }),
     ...(typeof value.email === "string" && { email: value.email }),
-    ...(typeof value.password === "string" && { password: value.password }),
   };
 }
 
@@ -33,8 +32,6 @@ export default function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState<RegistrationFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [passwordValue, setPasswordValue] = useState("");
 
   useEffect(() => {
     try {
@@ -106,7 +103,6 @@ export default function RegisterPage() {
     const firstName = String(formData.get("firstName") ?? "").trim();
     const lastName = String(formData.get("lastName") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
 
     setStatus(null);
     setFieldErrors({});
@@ -123,20 +119,13 @@ export default function RegisterPage() {
       return;
     }
 
-    if (Array.from(password).length < 6) {
-      const message = "Password must be at least 6 characters long.";
-      setFieldErrors({ password: message });
-      setStatus({ kind: "error", message });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({ firstName, lastName, email }),
       });
 
       let result: unknown;
@@ -172,8 +161,6 @@ export default function RegisterPage() {
 
       form.reset();
       setFieldErrors({});
-      setIsPasswordVisible(false);
-      setPasswordValue("");
       setStatus({
         kind: "success",
         message:
@@ -334,78 +321,6 @@ export default function RegisterPage() {
                   !
                 </span>
                 <span>{fieldErrors.email}</span>
-              </p>
-            )}
-          </div>
-
-          <div className="field">
-            <label htmlFor="register-password">
-              Password <span className="required" aria-hidden="true">*</span>
-            </label>
-            <div className="input-with-action">
-              <input
-                id="register-password"
-                name="password"
-                type={isPasswordVisible ? "text" : "password"}
-                autoComplete="new-password"
-                placeholder="Create a password"
-                required
-                value={passwordValue}
-                onChange={(event) => {
-                  setPasswordValue(event.target.value);
-                  setStatus(null);
-                  setFieldErrors((current) => ({
-                    ...current,
-                    password: undefined,
-                  }));
-                }}
-                aria-invalid={Boolean(fieldErrors.password)}
-                aria-describedby={
-                  fieldErrors.password
-                    ? "register-password-error password-requirements"
-                    : "password-requirements"
-                }
-              />
-              <button
-                className="input-action"
-                type="button"
-                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
-                aria-pressed={isPasswordVisible}
-                onClick={() => setIsPasswordVisible((visible) => !visible)}
-              >
-                {isPasswordVisible ? "Hide" : "Show"}
-              </button>
-            </div>
-            <ul
-              className="password-requirements"
-              id="password-requirements"
-              aria-label="Password requirements"
-            >
-              <li className="password-requirements-heading">
-                <em>Password must contain:</em>
-              </li>
-              <li
-                className={
-                  Array.from(passwordValue).length >= 6 ? "requirement-met" : ""
-                }
-              >
-                <span className="requirement-indicator" aria-hidden="true">
-                  {Array.from(passwordValue).length >= 6 ? "✓" : "○"}
-                </span>
-                At least 6 characters
-              </li>
-            </ul>
-            {fieldErrors.password && (
-              <p
-                className="field-error"
-                id="register-password-error"
-                role="status"
-                aria-live="polite"
-              >
-                <span className="field-error-icon" aria-hidden="true">
-                  !
-                </span>
-                <span>{fieldErrors.password}</span>
               </p>
             )}
           </div>
