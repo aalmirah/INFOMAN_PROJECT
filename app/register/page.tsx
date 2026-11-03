@@ -179,7 +179,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="auth-layout">
+    <main className="auth-layout register-wireframe">
       <section className="auth-card" aria-labelledby="register-title">
         <header className="auth-header">
           <Link className="brand" href="/register">
@@ -199,10 +199,7 @@ export default function RegisterPage() {
           </span>
         </div>
 
-        <form
-          className="form-stack"
-          onSubmit={handleSubmit}
-        >
+        <form className="form-stack" onSubmit={handleSubmit}>
           <div className="register-name-fields">
             <div className="field">
               <label htmlFor="register-first-name">
@@ -365,7 +362,9 @@ export default function RegisterPage() {
                   d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.49 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53C7.31 8.11 9.46 6.39 12 6.39Z"
                 />
               </svg>
-              {isGoogleSigningIn ? "Connecting to Google..." : "Continue with Google"}
+              {isGoogleSigningIn
+                ? "Connecting to Google..."
+                : "Continue with Google"}
             </button>
           </div>
         </form>

@@ -1,5 +1,40 @@
 @import "../design/css/styles.css";
 
+.auth-layout {
+  background:
+    radial-gradient(
+      circle at 12% 18%,
+      var(--color-primary-50),
+      transparent 34rem
+    ),
+    linear-gradient(
+      135deg,
+      var(--color-secondary-50),
+      var(--color-bg-surface) 58%,
+      var(--color-primary-50)
+    );
+}
+
+.auth-card {
+  border-top: 4px solid var(--color-primary-600);
+}
+
+.auth-header {
+  text-align: left;
+}
+
+.auth-header h1 {
+  font: var(--font-page-title);
+}
+
+.auth-header > .brand {
+  margin-bottom: var(--space-6);
+}
+
+.auth-header > p {
+  margin-top: var(--space-2);
+}
+
 .register-name-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7,6 +42,7 @@
 }
 
 .role-note {
+  margin-bottom: var(--space-6);
   border-left-color: var(--color-info-600);
   background: var(--color-secondary-50);
 }
@@ -87,7 +123,7 @@
   color: var(--color-text-primary);
 }
 
-@media (max-width: 420px) {
+@media (max-width: 640px) {
   .register-name-fields {
     grid-template-columns: 1fr;
   }
