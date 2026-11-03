@@ -1,13 +1,15 @@
 ## Description
-Briefly describe the changes made in this PR.
+Provide a brief summary of the changes made in this pull request.
 
-## Related Issue
-Closes #
+Fixes #(issue_number)
+
+## Type of Change
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Documentation update
+- [ ] Code refactor or style change
 
 ## Checklist
-- [ ] Code follows project conventions
-- [ ] I have self-reviewed my code
-- [ ] Tested locally
-
-## Reviewers
-@teammate-username
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my own code
+- [ ] I have verified that my changes do not break existing functionality
