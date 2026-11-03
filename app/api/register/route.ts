@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -91,25 +92,28 @@ export async function POST(request: Request): Promise<Response> {
   const lastName =
     typeof body.lastName === "string" ? body.lastName.trim() : "";
   const email = typeof body.email === "string" ? body.email.trim() : "";
+  const authorization = request.headers.get("authorization");
   const fields: Record<string, string> = {};
 
-  if (!firstName) fields.firstName = "First name is required.";
-  else if (firstName.length > 100) {
-    fields.firstName = "First name must be 100 characters or fewer.";
-  }
+  if (!authorization?.startsWith("Bearer ")) {
+    if (!firstName) fields.firstName = "First name is required.";
+    else if (firstName.length > 80) {
+      fields.firstName = "First name must be 80 characters or fewer.";
+    }
 
-  if (!lastName) fields.lastName = "Last name is required.";
-  else if (lastName.length > 100) {
-    fields.lastName = "Last name must be 100 characters or fewer.";
-  }
+    if (!lastName) fields.lastName = "Last name is required.";
+    else if (lastName.length > 80) {
+      fields.lastName = "Last name must be 80 characters or fewer.";
+    }
 
-  if (!email) {
-    fields.email = "Email is required.";
-  } else if (
-    email.length > 320 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  ) {
-    fields.email = "Enter a valid email address.";
+    if (!email) {
+      fields.email = "Email is required.";
+    } else if (
+      email.length > 320 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      fields.email = "Enter a valid email address.";
+    }
   }
 
   if (Object.keys(fields).length > 0) {
@@ -129,9 +133,95 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  if (authorization?.startsWith("Bearer ")) {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const publishableKey =
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+      if (!supabaseUrl || !publishableKey) {
+        return Response.json(
+          { error: "Registration is not configured on the server." },
+          { status: 503 },
+        );
+      }
+
+      const supabase = getSupabaseAdminClient();
+      const authClient = createClient(
+        supabaseUrl,
+        publishableKey,
+        {
+          auth: {
+            autoRefreshToken: false,
+            detectSessionInUrl: false,
+            persistSession: false,
+          },
+        },
+      );
+      const {
+        data: { user },
+        error: authError,
+      } = await authClient.auth.getUser(authorization.slice("Bearer ".length));
+
+      if (authError || !user?.email) {
+        return Response.json(
+          { error: "Google registration could not be verified." },
+          { status: 401 },
+        );
+      }
+
+      const { data: existingProfile, error: lookupError } = await supabase
+        .from("profiles")
+        .select("id, role, approval_status")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (lookupError) {
+        console.error("Supabase profile lookup failed after Google signup.", {
+          code: lookupError.code,
+          message: lookupError.message,
+        });
+        return Response.json(
+          { error: "Registration is temporarily unavailable." },
+          { status: 502 },
+        );
+      }
+
+      if (existingProfile) {
+        return Response.json(
+          {
+            message:
+              existingProfile.approval_status === "pending"
+                ? "Registration successful. Your account is Pending and awaits Super Admin approval."
+                : "This Google account already has a profile. Its existing access status was preserved.",
+          },
+          { status: 200 },
+        );
+      }
+
+      return Response.json(
+        {
+          error:
+            "Your account exists, but its profile was not created. Please contact an administrator.",
+        },
+        { status: 502 },
+      );
+    } catch (error) {
+      console.error(
+        "Google registration could not be completed.",
+        error instanceof Error
+          ? { name: error.name, message: error.message }
+          : { name: "Unknown error" },
+      );
+      return Response.json(
+        { error: "Registration is temporarily unavailable." },
+        { status: 502 },
+      );
+    }
+  }
+
   try {
     const supabase = getSupabaseAdminClient();
-    const { error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       email_confirm: true,
       user_metadata: {
@@ -145,6 +235,7 @@ export async function POST(request: Request): Promise<Response> {
       console.error("Supabase Auth admin user creation failed.", {
         status: error.status,
         code: error.code,
+        message: error.message,
       });
 
       if (error.status === 429) {
@@ -167,6 +258,61 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
+    const user = data.user;
+    if (!user) {
+      console.error("Supabase Auth user creation returned no user.");
+      return Response.json(
+        { error: "Registration is temporarily unavailable." },
+        { status: 502 },
+      );
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id, role, approval_status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (
+      profileError ||
+      !profile ||
+      profile.role !== "user" ||
+      profile.approval_status !== "pending"
+    ) {
+      console.error("Signup profile was not created as expected.", {
+        code: profileError?.code,
+        message: profileError?.message,
+        profileFound: Boolean(profile),
+        role: profile?.role,
+        approvalStatus: profile?.approval_status,
+      });
+
+      try {
+        const { error: cleanupError } = await supabase.auth.admin.deleteUser(
+          user.id,
+        );
+        if (cleanupError) {
+          console.error("Auth user cleanup failed after profile creation error.", {
+            status: cleanupError.status,
+            code: cleanupError.code,
+            message: cleanupError.message,
+          });
+        }
+      } catch (cleanupError) {
+        console.error(
+          "Auth user cleanup could not be completed after profile creation error.",
+          cleanupError instanceof Error
+            ? { name: cleanupError.name, message: cleanupError.message }
+            : { name: "Unknown error" },
+        );
+      }
+
+      return Response.json(
+        { error: "Registration could not be completed. Please try again." },
+        { status: 502 },
+      );
+    }
+
     return Response.json(
       {
         message:
@@ -177,7 +323,9 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     console.error(
       "Supabase Auth admin request could not be completed.",
-      error instanceof Error ? error.name : "Unknown error",
+      error instanceof Error
+        ? { name: error.name, message: error.message }
+        : { name: "Unknown error" },
     );
     return Response.json(
       { error: "Registration is temporarily unavailable." },

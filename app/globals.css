@@ -123,8 +123,183 @@
   color: var(--color-text-primary);
 }
 
-@media (max-width: 640px) {
-  .register-name-fields {
+.register-wireframe.auth-layout {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+  background: var(--color-bg-cream);
+}
+
+.register-wireframe .auth-card {
+  width: min(100%, 22rem);
+  padding: 20px;
+  border: 1px solid #c9dcdf;
+  border-top: 1px solid #c9dcdf;
+  border-radius: 5px;
+  background: var(--color-bg-surface);
+  box-shadow: 0 2px 6px rgb(15 23 42 / 8%);
+}
+
+.register-wireframe .auth-header {
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.register-wireframe .auth-header .brand {
+  justify-content: center;
+  margin: 0 auto var(--space-2);
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .auth-header .brand-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-600);
+  color: var(--color-bg-surface);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .auth-header h1 {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-primary);
+  font-size: 1.125rem;
+  line-height: 1.4;
+}
+
+.register-wireframe .auth-header > p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .role-note {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 2px solid var(--color-info-600);
+  border-radius: 2px;
+  background: var(--color-secondary-50);
+}
+
+.register-wireframe .role-note span {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.register-wireframe .form-stack {
+  gap: var(--space-2);
+}
+
+.register-wireframe .register-name-fields {
+  gap: var(--space-2);
+}
+
+.register-wireframe .field {
+  gap: var(--space-1);
+}
+
+.register-wireframe .field label {
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.register-wireframe .field input {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2);
+  border: 1px solid #c8dadd;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .field input:focus {
+  border-color: var(--color-primary-600);
+  outline: var(--focus-ring-width) solid color-mix(in srgb, var(--color-primary-600) 25%, transparent);
+  outline-offset: 1px;
+}
+
+.register-wireframe .form-actions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.register-wireframe .button-primary,
+.register-wireframe .sso-button {
+  width: 100%;
+  min-height: var(--touch-target-min);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .button-primary {
+  border: 0;
+  background: var(--color-primary-600);
+  color: var(--color-bg-surface);
+}
+
+.register-wireframe .button-primary:hover:not(:disabled) {
+  background: var(--color-primary-700);
+}
+
+.register-wireframe .sso-button {
+  border: 1px solid #c8dadd;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.register-wireframe .sso-button:hover:not(:disabled) {
+  background: var(--color-secondary-50);
+}
+
+.register-wireframe .form-divider {
+  gap: var(--space-2);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .form-divider::before,
+.register-wireframe .form-divider::after {
+  height: 1px;
+  background: #d5e2e4;
+}
+
+.register-wireframe .auth-footer {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.register-wireframe .sign-in-disabled {
+  color: var(--color-primary-700);
+  font-weight: 600;
+}
+
+.register-wireframe .submission-status {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.register-wireframe .submission-status span {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .register-wireframe.auth-layout {
+    align-items: flex-start;
+  }
+
+  .register-wireframe .auth-card {
+    margin: auto 0;
+    padding: var(--space-4);
+  }
+
+  .register-wireframe .register-name-fields {
     grid-template-columns: 1fr;
   }
 }

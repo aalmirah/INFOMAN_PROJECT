@@ -34,16 +34,93 @@ export default function RegisterPage() {
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
-    try {
-      const { data } = getSupabaseClient().auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_IN") {
+    const callbackUrl = new URL(window.location.href);
+    const isGoogleRegistration = callbackUrl.searchParams.get("oauth") === "google";
+    let hasHandledGoogleRegistration = false;
+
+    async function completeGoogleRegistration(accessToken: string) {
+      if (hasHandledGoogleRegistration) return;
+      hasHandledGoogleRegistration = true;
+      setIsGoogleSigningIn(true);
+
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({}),
+        });
+        const result: unknown = await response.json();
+
+        if (!isRecord(result)) {
+          throw new Error("Invalid registration response.");
+        }
+        if (!response.ok) {
           setStatus({
-            kind: "success",
+            kind: "error",
             message:
-              "Google sign-in successful. Your account is Pending and awaits Super Admin approval.",
+              typeof result.error === "string"
+                ? result.error
+                : "Google registration could not be completed.",
           });
+          return;
+        }
+
+        setStatus({
+          kind: "success",
+          message:
+            typeof result.message === "string"
+              ? result.message
+              : "Google registration was completed.",
+        });
+      } catch {
+        setStatus({
+          kind: "error",
+          message: "Google registration could not be completed. Please try again.",
+        });
+      } finally {
+        callbackUrl.searchParams.delete("oauth");
+        window.history.replaceState(
+          {},
+          "",
+          `${callbackUrl.pathname}${callbackUrl.search}${callbackUrl.hash}`,
+        );
+        setIsGoogleSigningIn(false);
+      }
+    }
+
+    try {
+      const supabase = getSupabaseClient();
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (
+          isGoogleRegistration &&
+          event === "SIGNED_IN" &&
+          session?.access_token
+        ) {
+          void completeGoogleRegistration(session.access_token);
         }
       });
+
+      if (isGoogleRegistration) {
+        void supabase.auth.getSession().then(({ data: sessionData, error }) => {
+          if (error) {
+            console.error("Google registration session could not be read.", {
+              code: error.code,
+            });
+            setStatus({
+              kind: "error",
+              message:
+                "Google registration could not be verified. Please try again.",
+            });
+            return;
+          }
+          if (sessionData.session?.access_token) {
+            void completeGoogleRegistration(sessionData.session.access_token);
+          }
+        });
+      }
 
       return () => data.subscription.unsubscribe();
     } catch (error) {
@@ -64,7 +141,7 @@ export default function RegisterPage() {
       const { error } = await getSupabaseClient().auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/register`,
+          redirectTo: `${window.location.origin}/register?oauth=google`,
         },
       });
 
@@ -211,7 +288,7 @@ export default function RegisterPage() {
                 type="text"
                 autoComplete="given-name"
                 placeholder="Your first name"
-                maxLength={100}
+                maxLength={80}
                 required
                 onChange={() => {
                   setFieldErrors((current) => ({
@@ -250,7 +327,7 @@ export default function RegisterPage() {
                 type="text"
                 autoComplete="family-name"
                 placeholder="Your last name"
-                maxLength={100}
+                maxLength={80}
                 required
                 onChange={() => {
                   setFieldErrors((current) => ({
