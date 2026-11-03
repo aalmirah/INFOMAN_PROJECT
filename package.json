@@ -1,4 +1,11 @@
 {
+  "private": true,
+  "scripts": {
+    "db:migrate": "node db/scripts/migrate.js migrate",
+    "db:status": "node db/scripts/migrate.js status",
+    "db:reset": "node db/scripts/migrate.js reset",
+    "db:seed": "node db/scripts/seed.js"
+  },
   "dependencies": {
     "dotenv": "^18.0.9",
     "pg": "^8.23.1"

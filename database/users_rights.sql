@@ -1,6 +1,6 @@
 -- users_rights.sql
 -- Access-control tables (USERS, RIGHTS, USERRIGHTS) plus the app tables that sit beside the
--- professor's schema (CUSTOMERS, PRODUCTS, REPORTS), and the 5 team members as Super Admin.
+-- professor's schema (CUSTOMERS, PRODUCTS, REPORTS). Only database_admin is Super Admin.
 -- Run AFTER schema.sql (the professor's script).
 --
 -- SAFE TO RE-RUN, and safe on the live Supabase project where these tables already exist:
@@ -81,7 +81,7 @@ WHERE NOT EXISTS (SELECT 1 FROM rights WHERE right_name = 'Super Admin');
 INSERT INTO users (username, full_name, email)
 SELECT v.username, v.full_name, v.email
 FROM (VALUES
-  ('scrum_master',   'Almirah Abdul',           'almirahabdul@gmail.com'),
+  ('scrum_master',   'Almirah Abdul',           'almirahabdul4@gmail.com'),
   ('developer',      'Chelcee Guibang-guibang', 'chelceeguibang3@gmail.com'),
   ('ui_designer',    'Daniela Drew Granada',    'granadadaniela56@gmail.com'),
   ('tester',         'Miah Bless Penoliar',     'miahblessp@gmail.com'),
@@ -95,7 +95,7 @@ SET full_name = v.full_name,
     email     = v.email,
     stamp     = to_char(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS')
 FROM (VALUES
-  ('scrum_master',   'Almirah Abdul',           'almirahabdul@gmail.com'),
+  ('scrum_master',   'Almirah Abdul',           'almirahabdul4@gmail.com'),
   ('developer',      'Chelcee Guibang-guibang', 'chelceeguibang3@gmail.com'),
   ('ui_designer',    'Daniela Drew Granada',    'granadadaniela56@gmail.com'),
   ('tester',         'Miah Bless Penoliar',     'miahblessp@gmail.com'),
@@ -104,20 +104,45 @@ FROM (VALUES
 WHERE u.username = v.username
   AND (u.full_name, u.email) IS DISTINCT FROM (v.full_name, v.email);
 
--- All 5 get the Super Admin right
-INSERT INTO userrights (user_id, right_id)
-SELECT u.user_id, r.right_id
-FROM users u
-CROSS JOIN rights r
-WHERE r.right_name = 'Super Admin'
-  AND u.username IN ('scrum_master', 'developer', 'ui_designer', 'tester', 'database_admin')
+-- 1. Make sure the Admin and User rights exist
+INSERT INTO public.rights (right_name, description)
+SELECT 'Admin', 'Administrative permission, assignable only by existing administrators.'
+WHERE NOT EXISTS (SELECT 1 FROM public.rights WHERE right_name = 'Admin');
+
+INSERT INTO public.rights (right_name, description)
+SELECT 'User', 'Default right given to every newly signed-up user.'
+WHERE NOT EXISTS (SELECT 2 FROM public.rights WHERE right_name = 'User');
+
+-- 2. Give each person their new right
+INSERT INTO public.userrights (user_id, right_id)
+SELECT usr.user_id, rgt.right_id
+FROM public.users AS usr
+JOIN public.rights AS rgt
+  ON rgt.right_name = CASE lower(usr.email)
+       WHEN 'rich.lagrada@gmail.com'     THEN 'Super Admin'
+       WHEN 'chelceeguibang3@gmail.com'  THEN 'Super Admin'
+       WHEN 'almirahabdul4@gmail.com'     THEN 'Admin'
+       WHEN 'granadadaniela56@gmail.com' THEN 'User'
+       WHEN 'miahblessp@gmail.com'       THEN 'User'
+     END
+WHERE lower(usr.email) IN ('rich.lagrada@gmail.com', 'chelceeguibang3@gmail.com', 'almirahabdul4@gmail.com',
+                           'granadadaniela56@gmail.com', 'miahblessp@gmail.com')
   AND NOT EXISTS (
-    SELECT 1 FROM userrights ur WHERE ur.user_id = u.user_id AND ur.right_id = r.right_id
+    SELECT 1 FROM public.userrights AS existing
+    WHERE existing.user_id = usr.user_id AND existing.right_id = rgt.right_id
   );
 
--- Quick check (optional): should return 5 rows, all Super Admin
--- SELECT u.username, u.full_name, u.email, r.right_name, ur.status
--- FROM users u
--- JOIN userrights ur ON ur.user_id = u.user_id
--- JOIN rights r ON r.right_id = ur.right_id
--- ORDER BY u.user_id;
+-- 3. Remove the old rights that no longer apply
+DELETE FROM public.userrights
+WHERE user_id IN (SELECT user_id FROM public.users
+                  WHERE lower(email) IN ('rich.lagrada@gmail.com', 'chelceeguibang3@gmail.com'))
+  AND right_id <> (SELECT right_id FROM public.rights WHERE right_name = 'Super Admin');
+
+DELETE FROM public.userrights
+WHERE user_id IN (SELECT user_id FROM public.users WHERE lower(email) = 'almirahabdul4@gmail.com')
+  AND right_id <> (SELECT right_id FROM public.rights WHERE right_name = 'Admin');
+
+DELETE FROM public.userrights
+WHERE user_id IN (SELECT user_id FROM public.users
+                  WHERE lower(email) IN ('granadadaniela56@gmail.com', 'miahblessp@gmail.com'))
+  AND right_id <> (SELECT right_id FROM public.rights WHERE right_name = 'User');
