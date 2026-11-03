@@ -61,3 +61,6 @@ Status and role meaning must never be conveyed by color alone. Use text and/or i
 
 - [User registration screen](wireframes/user-registration.md): Modal layout, form controls, validation, actions, responsive behavior, and accessibility guidance.
 - [ERP dashboard](wireframes/dashboard.md): Sidebar, header, metric cards, activity table, row actions, filters, states, permissions, and responsive behavior.
+- [Authentication wireframes](wireframes/authentication.md): Low-fidelity desktop/mobile layouts, states, focus and tab order, flow, callouts, and authentication microcopy.
+- [Authentication UI specification](wireframes/authentication-spec.html): Side-by-side desktop and mobile visual previews for four static authentication wireframes.
+- [Set-password wireframe](wireframes/set-password.html): Static new-password form with password requirements and confirmation.

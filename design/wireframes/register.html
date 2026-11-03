@@ -3,55 +3,37 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HOPE Inc. ERP | Register</title>
+    <title>HOPE, INC. | Register wireframe</title>
     <link rel="stylesheet" href="../css/styles.css">
   </head>
-  <body>
+  <body class="auth-wireframe-page">
     <main class="auth-layout">
       <section class="auth-card" aria-labelledby="register-title">
         <header class="auth-header">
-          <a class="brand" href="index.html">
-            <span class="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </a>
-          <h1 id="register-title">Create your Hope account</h1>
-          <p>Register for access to the Hope Inc. ERP.</p>
+          <div class="wireframe-logo" aria-hidden="true">HOPE, INC.</div>
+          <h1 id="register-title">Create your account</h1>
         </header>
 
-        <div class="status-note" role="note">
-          <strong>Approval required</strong>
-          <span>New registrations start as User / Inactive and cannot access the ERP until explicitly approved by a Superadmin.</span>
+        <div class="wireframe-form">
+          <div class="wireframe-name-row">
+            <div class="field">
+              <label for="first-name">First name</label>
+              <input id="first-name" type="text" placeholder="First name" readonly>
+            </div>
+            <div class="field">
+              <label for="last-name">Last name</label>
+              <input id="last-name" type="text" placeholder="Last name" readonly>
+            </div>
+          </div>
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input id="register-email" type="email" placeholder="name@example.com" readonly>
+          </div>
+          <button class="wireframe-button wireframe-button-primary" type="button" disabled>Register</button>
+          <button class="wireframe-button" type="button" disabled>Continue with Google</button>
         </div>
 
-        <form class="form-stack" action="#" method="post" aria-describedby="register-help">
-          <p class="form-help" id="register-help">Submit your details for Superadmin review. After approval, set your password using the emailed link.</p>
-          <div class="field">
-            <label for="first-name">First name <span class="required" aria-hidden="true">*</span></label>
-            <input id="first-name" name="firstName" type="text" autocomplete="given-name" placeholder="Your first name" required aria-describedby="first-name-help">
-            <p class="form-help" id="first-name-help">Enter your legal first name.</p>
-          </div>
-          <div class="field">
-            <label for="last-name">Last name <span class="required" aria-hidden="true">*</span></label>
-            <input id="last-name" name="lastName" type="text" autocomplete="family-name" placeholder="Your last name" required aria-describedby="last-name-help">
-            <p class="form-help" id="last-name-help">Enter your legal last name.</p>
-          </div>
-          <div class="field">
-            <label for="register-email">Email address <span class="required" aria-hidden="true">*</span></label>
-            <input id="register-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required aria-describedby="register-email-help">
-            <p class="form-help" id="register-email-help">We will use this address for approval and password setup.</p>
-          </div>
-          <div class="form-actions">
-            <button class="button-primary" type="submit">Submit for approval</button>
-            <button class="sso-button" type="button">Continue with Google</button>
-            <a class="button button-secondary" href="login.html">Cancel</a>
-          </div>
-        </form>
-
-        <div class="status-note" role="status" aria-live="polite">
-          <strong>What happens next?</strong>
-          <span>Email registration and Google OAuth both wait for Superadmin approval. Google Sign In is enabled only after the account becomes Active.</span>
-        </div>
-        <p class="auth-footer">Already approved? <a href="login.html">Sign in</a>.</p>
+        <p class="auth-footer">Already registered? <span class="wireframe-link">Sign In</span></p>
       </section>
     </main>
   </body>
