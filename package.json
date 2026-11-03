@@ -7,11 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node db/scripts/migrate.js migrate",
+    "db:status": "node db/scripts/migrate.js status",
+    "db:reset": "node db/scripts/migrate.js reset",
+    "db:seed": "node db/scripts/seed.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
+    "dotenv": "18.0.9",
     "next": "^16.4.3",
+    "pg": "8.23.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
