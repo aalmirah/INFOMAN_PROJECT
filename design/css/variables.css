@@ -1,0 +1,81 @@
+:root {
+  /* --- 1. Color Tokens --- */
+  --color-primary-600: #1E3A8A;
+  --color-primary-700: #1E293B;
+  --color-primary-50: #EFF6FF;
+
+  /* Explicit Secondary Tokens */
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-50: #F1F5F9;
+
+  --color-sidebar-dark: #0F172A;
+  --color-sidebar-hover: #1E293B;
+
+  --color-bg-cream: #F8FAFC;
+  --color-bg-surface: #FFFFFF;
+  --color-border-subtle: #E2E8F0;
+
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-disabled: #94A3B8;
+
+  /* Semantic Colors */
+  --color-success-600: #16A34A;
+  --color-danger-600: #DC2626;
+  --color-warning-600: #D97706;
+  --color-info-600: #2563EB;
+
+  /* Role Colors */
+  --color-role-superadmin: #7C3AED;
+  --color-role-admin: #0284C7;
+  --color-role-user: #475569;
+
+  /* Table & Soft Delete */
+  --color-deleted-shade: #FEF2F2;
+
+  /* --- 2. Typography --- */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --font-page-title: 700 1.5rem/2rem var(--font-family-base);
+  --font-section-title: 600 1.125rem/1.5rem var(--font-family-base);
+  --font-table-header: 600 0.75rem/1rem var(--font-family-base);
+  --font-body: 400 0.875rem/1.25rem var(--font-family-base);
+  --font-caption: 500 0.75rem/1rem var(--font-family-base);
+  --font-button: 600 0.875rem/1.25rem var(--font-family-base);
+
+  /* --- 3. Spacing & Dimensions --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --sidebar-width: 256px;
+  --content-max-width: 1440px;
+
+  /* --- 4. Elevation & Radii --- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-pill: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* --- 5. Responsive and Interaction Tokens --- */
+  --breakpoint-mobile: 640px;
+  --breakpoint-desktop: 1024px;
+
+  --touch-target-min: 44px;
+  --control-height: 44px;
+
+  --focus-ring-width: 2px;
+  --focus-ring-color: var(--color-info-600);
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+
+  --layout-padding-mobile: 8px;
+  --layout-padding-tablet: 16px;
+  --layout-padding-desktop: 24px;
+}

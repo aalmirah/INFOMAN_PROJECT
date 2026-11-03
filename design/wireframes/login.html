@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE, INC. | Sign in wireframe</title>
+    <link rel="stylesheet" href="../css/styles.css">
+  </head>
+  <body class="auth-wireframe-page">
+    <main class="auth-layout">
+      <section class="auth-card" aria-labelledby="login-title">
+        <header class="auth-header">
+          <div class="wireframe-logo" aria-hidden="true">HOPE, INC.</div>
+          <h1 id="login-title">Sign in</h1>
+          <p>Welcome back. Enter your account info.</p>
+        </header>
+
+        <div class="wireframe-form">
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" placeholder="name@example.com" readonly>
+          </div>
+          <div class="field">
+            <div class="field-heading">
+              <label for="login-password">Password</label>
+              <span class="wireframe-link">Forgot password?</span>
+            </div>
+            <div class="wireframe-input-action">
+              <input id="login-password" type="password" placeholder="Enter your password" readonly>
+              <span>Show</span>
+            </div>
+          </div>
+          <label class="checkbox">
+            <input type="checkbox" disabled>
+            Remember me
+          </label>
+          <button class="wireframe-button wireframe-button-primary" type="button" disabled>Sign In</button>
+          <button class="wireframe-button" type="button" disabled>Continue with Google</button>
+        </div>
+
+        <p class="auth-footer">New to Hope, Inc.? <span class="wireframe-link">Register</span></p>
+      </section>
+    </main>
+  </body>
+</html>
