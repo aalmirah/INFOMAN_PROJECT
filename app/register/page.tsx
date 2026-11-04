@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 type RegistrationStatus = {
@@ -28,15 +30,18 @@ function getFieldErrors(value: unknown): RegistrationFieldErrors {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [status, setStatus] = useState<RegistrationStatus | null>(null);
   const [fieldErrors, setFieldErrors] = useState<RegistrationFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
+  const [isWaitingForApproval, setIsWaitingForApproval] = useState(false);
 
   useEffect(() => {
     const callbackUrl = new URL(window.location.href);
     const isGoogleRegistration = callbackUrl.searchParams.get("oauth") === "google";
     let hasHandledGoogleRegistration = false;
+    let active = true;
 
     async function completeGoogleRegistration(accessToken: string) {
       if (hasHandledGoogleRegistration) return;
@@ -73,8 +78,9 @@ export default function RegisterPage() {
           message:
             typeof result.message === "string"
               ? result.message
-              : "Google registration was completed.",
+              : "Your registration is awaiting administrator approval.",
         });
+        setIsWaitingForApproval(true);
       } catch {
         setStatus({
           kind: "error",
@@ -103,6 +109,29 @@ export default function RegisterPage() {
         }
       });
 
+      void (async () => {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+        if (!active || error || !user || isGoogleRegistration) return;
+
+        const { profile } = await getAuthProfile(supabase, user.id);
+        if (active && profile?.approvalStatus === "pending") {
+          setIsWaitingForApproval(true);
+          setStatus({
+            kind: "success",
+            message:
+              "Your registration is pending administrator approval. This page will continue checking automatically.",
+          });
+        }
+      })().catch((error: unknown) => {
+        console.error(
+          "Existing registration session could not be checked.",
+          error instanceof Error ? error.name : "Unknown error",
+        );
+      });
+
       if (isGoogleRegistration) {
         void supabase.auth.getSession().then(({ data: sessionData, error }) => {
           if (error) {
@@ -122,14 +151,87 @@ export default function RegisterPage() {
         });
       }
 
-      return () => data.subscription.unsubscribe();
+      return () => {
+        active = false;
+        data.subscription.unsubscribe();
+      };
     } catch (error) {
       console.error(
         "Supabase Auth could not be initialized.",
         error instanceof Error ? error.name : "Unknown error",
       );
     }
-  }, []);
+  }, [router]);
+
+  useEffect(() => {
+    if (!isWaitingForApproval) return;
+
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    async function checkApproval() {
+      try {
+        const supabase = getSupabaseClient();
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
+
+        if (authError) throw authError;
+        if (!user) {
+          setIsWaitingForApproval(false);
+          router.replace("/login");
+          return;
+        }
+
+        const { profile, error } = await getAuthProfile(supabase, user.id);
+        if (error || !profile) {
+          throw error ?? new Error("Account profile is unavailable.");
+        }
+
+        if (profile.isBlocked || !profile.isActive) {
+          const { error: signOutError } = await supabase.auth.signOut();
+          if (signOutError) {
+            console.error("Rejected registration session could not be cleared.", {
+              code: signOutError.code,
+              status: signOutError.status,
+            });
+          }
+          setIsWaitingForApproval(false);
+          router.replace(
+            profile.isBlocked
+              ? "/login?error=blocked"
+              : "/login?error=inactive",
+          );
+          return;
+        }
+
+        if (profile.approvalStatus === "approved") {
+          setIsWaitingForApproval(false);
+          router.replace(
+            profile.mustChangePassword ? "/set-password" : "/session",
+          );
+          router.refresh();
+          return;
+        }
+      } catch (error) {
+        console.error(
+          "Registration approval status could not be checked.",
+          error instanceof Error ? error.name : "Unknown error",
+        );
+      }
+
+      if (active) {
+        timer = setTimeout(checkApproval, 5000);
+      }
+    }
+
+    void checkApproval();
+    return () => {
+      active = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [isWaitingForApproval, router]);
 
   async function handleGoogleSignIn() {
     if (isGoogleSigningIn || isSubmitting) return;
@@ -138,10 +240,12 @@ export default function RegisterPage() {
     setIsGoogleSigningIn(true);
 
     try {
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      callbackUrl.searchParams.set("next", "/register?oauth=google");
       const { error } = await getSupabaseClient().auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/register?oauth=google`,
+          redirectTo: callbackUrl.toString(),
         },
       });
 
@@ -236,14 +340,41 @@ export default function RegisterPage() {
         return;
       }
 
+      if (typeof result.tokenHash !== "string" || !result.tokenHash) {
+        setStatus({
+          kind: "error",
+          message:
+            "Your account was created, but we couldn't start its approval session. Contact an administrator.",
+        });
+        return;
+      }
+
+      const { error: sessionError } = await getSupabaseClient().auth.verifyOtp({
+        token_hash: result.tokenHash,
+        type: "magiclink",
+      });
+      if (sessionError) {
+        console.error("Registration approval session could not be started.", {
+          code: sessionError.code,
+          status: sessionError.status,
+        });
+        setStatus({
+          kind: "error",
+          message:
+            "Your account was created, but we couldn't start its approval session. Contact an administrator.",
+        });
+        return;
+      }
+
       form.reset();
       setFieldErrors({});
+      setIsWaitingForApproval(true);
       setStatus({
         kind: "success",
         message:
           typeof result.message === "string"
             ? result.message
-            : "Your registration request was submitted.",
+            : "Your registration is pending administrator approval. This page will continue checking automatically.",
       });
     } catch {
       setStatus({
@@ -283,6 +414,7 @@ export default function RegisterPage() {
                 First name <span className="required" aria-hidden="true">*</span>
               </label>
               <input
+                disabled={isWaitingForApproval}
                 id="register-first-name"
                 name="firstName"
                 type="text"
@@ -322,6 +454,7 @@ export default function RegisterPage() {
                 Last name <span className="required" aria-hidden="true">*</span>
               </label>
               <input
+                disabled={isWaitingForApproval}
                 id="register-last-name"
                 name="lastName"
                 type="text"
@@ -366,6 +499,7 @@ export default function RegisterPage() {
               </span>
             </label>
             <input
+              disabled={isWaitingForApproval}
               id="register-email"
               name="email"
               type="email"
@@ -403,7 +537,9 @@ export default function RegisterPage() {
             <button
               className="button button-primary"
               type="submit"
-              disabled={isSubmitting || isGoogleSigningIn}
+              disabled={
+                isSubmitting || isGoogleSigningIn || isWaitingForApproval
+              }
             >
               {isSubmitting ? "Registering..." : "Register"}
             </button>
@@ -414,7 +550,9 @@ export default function RegisterPage() {
               className="sso-button"
               type="button"
               onClick={handleGoogleSignIn}
-              disabled={isSubmitting || isGoogleSigningIn}
+              disabled={
+                isSubmitting || isGoogleSigningIn || isWaitingForApproval
+              }
             >
               <svg
                 className="google-mark"
@@ -463,9 +601,7 @@ export default function RegisterPage() {
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <span className="sign-in-disabled" aria-disabled="true">
-            Sign in
-          </span>
+          <Link href="/login">Sign in</Link>
         </p>
       </section>
     </main>

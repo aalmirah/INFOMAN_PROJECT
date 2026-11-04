@@ -313,12 +313,56 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
+    const { data: linkData, error: linkError } =
+      await supabase.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+      });
+    const tokenHash = linkData?.properties?.hashed_token;
+
+    if (linkError || !tokenHash) {
+      console.error("Registration session could not be initialized.", {
+        code: linkError?.code,
+        message: linkError?.message,
+        tokenGenerated: Boolean(tokenHash),
+      });
+
+      try {
+        const { error: cleanupError } = await supabase.auth.admin.deleteUser(
+          user.id,
+        );
+        if (cleanupError) {
+          console.error("Auth user cleanup failed after session setup error.", {
+            status: cleanupError.status,
+            code: cleanupError.code,
+            message: cleanupError.message,
+          });
+        }
+      } catch (cleanupError) {
+        console.error(
+          "Auth user cleanup could not be completed after session setup error.",
+          cleanupError instanceof Error
+            ? { name: cleanupError.name, message: cleanupError.message }
+            : { name: "Unknown error" },
+        );
+      }
+
+      return Response.json(
+        { error: "Registration could not be completed. Please try again." },
+        { status: 502 },
+      );
+    }
+
     return Response.json(
       {
         message:
           "Registration successful. Your account is Pending and awaits Super Admin approval.",
+        tokenHash,
       },
-      { status: 201 },
+      {
+        status: 201,
+        headers: { "Cache-Control": "no-store" },
+      },
     );
   } catch (error) {
     console.error(
