@@ -16,6 +16,7 @@
     "db:seed:demo": "node db/scripts/seed-demo.js",
     "db:issue-setup-links": "node db/scripts/issue-setup-links.js",
     "db:check-sql-secrets": "node db/scripts/check-sql-secrets.js",
+    "db:test:audit": "node db/scripts/test-audit.js",
     "db:verify": "node db/scripts/verify.js"
   },
   "dependencies": {

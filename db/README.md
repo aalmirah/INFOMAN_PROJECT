@@ -20,6 +20,8 @@ operating systems. No Docker is required.
 |   |   |-- 003_user_management.md
 |   |   |-- 004_password_reset_token.sql
 |   |   |-- 004_password_reset_token.md
+|   |   |-- 005_application_user_audit.sql
+|   |   |-- 005_application_user_audit.md
 |   |   `-- README.md
 |   |-- seeds
 |   |   |-- 001_default_roles_modules_rights.sql
@@ -32,6 +34,7 @@ operating systems. No Docker is required.
 |   |   |-- seed.js
 |   |   |-- seed-team.js
 |   |   |-- seed-demo.js
+|   |   |-- test-audit.js
 |   |   |-- lib
 |   |   |   `-- database.js
 |   |   `-- verify.js
@@ -53,6 +56,12 @@ The repeat-safe default role/module/right catalogue is in
 `db/seeds/team.example.csv` to the ignored `db/seeds/team.csv`, replace its
 fake rows locally with the team's names and email addresses, and never commit
 that file. `.env` and `db/seeds/team.csv` are ignored by Git.
+
+The audit-user migration and backend handoff are documented in
+`db/migrations/005_application_user_audit.md`. To exercise all nine audit
+cases, including two independent PostgreSQL sessions, run `npm run db:test:audit`
+after migrations and default catalogue seeding on a disposable development
+database. All data-writing test cases roll back.
 
 The relevant `.gitignore` rules are:
 
@@ -328,6 +337,7 @@ from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
 | `npm run db:seed:demo` | Add demo users and permissions on an explicitly allowed development host only |
 | `npm run db:issue-setup-links` | Issue one-time console-only first-password links for eligible accounts |
 | `npm run db:check-sql-secrets` | Check staged SQL for password assignments and password hashes |
+| `npm run db:test:audit` | Run audit attribution, soft-delete, sensitive-field, and pooling tests |
 
 Each migration runs in its own transaction. The runner records the migration
 filename and SHA-256 checksum in `schema_migrations`; it refuses to continue
