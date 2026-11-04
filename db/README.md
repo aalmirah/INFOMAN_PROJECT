@@ -16,6 +16,8 @@ operating systems. No Docker is required.
 |   |-- migrations
 |   |   |-- 001_hope_base_tables.sql
 |   |   |-- 002_hope_sample_data.sql
+|   |   |-- 003_user_management.sql
+|   |   |-- 003_user_management.md
 |   |   `-- README.md
 |   |-- scripts
 |   |   |-- migrate.js
@@ -25,9 +27,11 @@ operating systems. No Docker is required.
 `-- node_modules/                 (local only; ignored by Git)
 ```
 
-The base schema and guide-requested sample records are in separate migrations.
-See [migrations/README.md](migrations/README.md) for source limitations,
-assumptions, differences, and audit objects reserved for Task 6. The optional
+The base schema, sample records, and user-management schema are in separate
+migrations. See [migrations/README.md](migrations/README.md) for Task 2 source
+limitations and assumptions, and
+[migrations/003_user_management.md](migrations/003_user_management.md) for the
+Task 3 design, ERD, authorization notes, and verification queries. The optional
 `db/seeds` directory remains for additional repeat-safe seed scripts.
 
 ## Team database approach
