@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HOPE Inc. ERP high-fidelity dashboard and user management preview.">
+    <title>HOPE, INC. | Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/styles.css">
+  </head>
+  <body>
+    <div class="erp-shell" data-dashboard data-role="admin" data-fixed-role="admin">
+      <aside class="erp-sidebar">
+        <a class="erp-sidebar__brand" href="index.html">HOPE, INC. ERP</a>
+        <a class="erp-sidebar__link" href="#dashboard" data-dashboard-view-link="dashboard" data-dashboard-nav-item="dashboard"><span class="erp-sidebar__icon" aria-hidden="true">📊</span><span>Dashboard</span></a>
+        <nav class="erp-sidebar__nav" data-role-nav aria-label="ERP navigation"></nav>
+        <p class="erp-sidebar__footer">Signed in as <strong data-current-role>SUPERADMIN</strong><br><a href="login.html">Log out</a></p>
+      </aside>
+
+      <main class="erp-main">
+        <header class="erp-header">
+          <div>
+            <h1>Dashboard</h1>
+          </div>
+          <span class="role-pill" data-current-role>SUPERADMIN</span>
+        </header>
+
+        <section class="welcome-banner dashboard-view" data-dashboard-view="dashboard" aria-labelledby="welcome-title">
+          <h2 id="welcome-title" data-welcome-title>Welcome, Admin!</h2>
+          <p data-welcome-copy>You can manage most modules and user rights (except Superadmin accounts).</p>
+        </section>
+
+        <section class="metric-grid dashboard-view" data-dashboard-view="dashboard" aria-label="Key metrics">
+          <article class="metric-card"><div class="metric-card__heading"><span class="dashboard-icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM21 20v-1a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span>Total Customers</span></div><strong>0</strong><small>Ready for your first customer</small></article>
+          <article class="metric-card"><div class="metric-card__heading"><span class="dashboard-icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m4 8 8-4 8 4-8 4-8-4Zm0 4 8 4 8-4M4 16l8 4 8-4"></path></svg></span><span>Products</span></div><strong>0</strong><small>No products added yet</small></article>
+          <article class="metric-card"><div class="metric-card__heading"><span class="dashboard-icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v13H4zM7 3v6M17 3v6M4 10h16"></path></svg></span><span>Open Orders</span></div><strong>0</strong><small>No open orders</small></article>
+          <article class="metric-card"><div class="metric-card__heading"><span class="dashboard-icon-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 6.5c0-1.7-2.2-3-5-3S7 4.8 7 6.5s2.2 3 5 3 5 1.3 5 3-2.2 3-5 3-5-1.3-5-3"></path></svg></span><span>Revenue MTD</span></div><strong>$0</strong><small>No revenue recorded</small></article>
+        </section>
+
+        <section class="quick-actions dashboard-view" data-dashboard-view="dashboard" aria-labelledby="quick-actions-title">
+          <h2 id="quick-actions-title">Quick Actions</h2>
+          <div class="quick-actions__grid">
+            <a class="button button-secondary" href="#customers"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--customers" aria-hidden="true">👥</span>View Customers</a>
+            <a class="button button-secondary" href="#products"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--products" aria-hidden="true">📦</span>Manage Products</a>
+            <a class="button button-secondary" href="#human-resources" data-role-access="superadmin,admin"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--hr" aria-hidden="true">💼</span>Human Resources</a>
+            <a class="button button-secondary" href="#sales"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--sales" aria-hidden="true">📊</span>Sales Pipeline</a>
+            <button class="button button-primary" type="button" data-dashboard-view-trigger="user-management" data-role-access="superadmin,admin"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--users" aria-hidden="true">🔑</span>Manage Users</button>
+            <a class="button button-secondary" href="#settings" data-role-access="superadmin"><span class="dashboard-icon-badge dashboard-icon-badge--button dashboard-icon-badge--settings" aria-hidden="true">⚙️</span>System Settings</a>
+          </div>
+        </section>
+
+        <section class="data-panel dashboard-view" data-dashboard-view="user-management" data-user-management hidden aria-labelledby="users-title">
+          <div class="section-toolbar">
+            <div>
+              <p class="eyebrow">Administration</p>
+              <h2 id="users-title">User management</h2>
+              <p data-user-management-description>Admin: Manage Users only. Other Admin accounts show "—" in Actions.</p>
+            </div>
+            <span class="role-pill" data-user-management-role>SUPERADMIN</span>
+            <button class="button button-primary" type="button"><span class="dashboard-icon-badge dashboard-icon-badge--button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg></span>Add user</button>
+          </div>
+          <table class="data-table">
+            <caption class="sr-only">User management directory</caption>
+            <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+            <tbody>
+              <tr data-user-role="superadmin"><td>SuperAdmin 1</td><td>superadmin1@hope.com</td><td><span class="role-pill">SuperAdmin</span></td><td><span class="status-badge">Active</span></td><td><div class="table-actions"><button class="button-compact button-compact--primary" type="button">Edit</button><button class="button-compact button-compact--secondary" type="button" data-open-rights>Rights</button><button class="button-compact button-compact--danger" type="button">Block</button></div></td></tr>
+              <tr data-user-role="superadmin"><td>SuperAdmin 2</td><td>superadmin2@hope.com</td><td><span class="role-pill">SuperAdmin</span></td><td><span class="status-badge">Active</span></td><td><div class="table-actions"><button class="button-compact button-compact--primary" type="button">Edit</button><button class="button-compact button-compact--secondary" type="button" data-open-rights>Rights</button><button class="button-compact button-compact--danger" type="button">Block</button></div></td></tr>
+              <tr data-user-role="admin"><td>Admin 1</td><td>admin1@hope.com</td><td><span class="role-pill">Admin</span></td><td><span class="status-badge">Active</span></td><td><div class="table-actions"><button class="button-compact button-compact--primary" type="button">Edit</button><button class="button-compact button-compact--secondary" type="button" data-open-rights>Rights</button><button class="button-compact button-compact--danger" type="button">Block</button></div></td></tr>
+              <tr data-user-role="admin"><td>Admin 2</td><td>admin2@hope.com</td><td><span class="role-pill">Admin</span></td><td><span class="status-badge">Active</span></td><td><div class="table-actions"><button class="button-compact button-compact--primary" type="button">Edit</button><button class="button-compact button-compact--secondary" type="button" data-open-rights>Rights</button><button class="button-compact button-compact--danger" type="button">Block</button></div></td></tr>
+              <tr data-user-role="user"><td>User 1</td><td>user1@hope.com</td><td><span class="role-pill">User</span></td><td><span class="status-badge">Active</span></td><td><div class="table-actions"><button class="button-compact button-compact--primary" type="button">Edit</button><button class="button-compact button-compact--secondary" type="button" data-open-rights>Rights</button><button class="button-compact button-compact--danger" type="button">Block</button></div></td></tr>
+            </tbody>
+          </table>
+        </section>
+      </main>
+
+      <div class="rights-backdrop" data-rights-dialog hidden>
+        <section class="rights-dialog" role="dialog" aria-modal="true" aria-labelledby="rights-title">
+          <header class="dialog-header">
+            <div><h2 id="rights-title">Rights for User Name</h2><p>Configure module permissions.</p></div>
+            <button class="dialog-close" type="button" data-close-rights aria-label="Close rights dialog">Close</button>
+          </header>
+          <div class="permission-grid">
+            <fieldset class="permission-group" data-permission-group><legend>Customer Management</legend><div class="table-actions"><button class="button-compact" type="button" data-select-all>Select all</button><button class="button-compact" type="button" data-deselect-all>Deselect all</button></div><ul class="permission-list"><li><label><input type="checkbox"> Add customer</label></li><li><label><input type="checkbox"> Edit customer</label></li><li><label><input type="checkbox"> Delete customer</label></li></ul></fieldset>
+            <fieldset class="permission-group" data-permission-group><legend>Product Management</legend><div class="table-actions"><button class="button-compact" type="button" data-select-all>Select all</button><button class="button-compact" type="button" data-deselect-all>Deselect all</button></div><ul class="permission-list"><li><label><input type="checkbox"> Add product</label></li><li><label><input type="checkbox"> Edit product</label></li><li><label><input type="checkbox"> Delete product</label></li></ul></fieldset>
+            <fieldset class="permission-group" data-permission-group><legend>Human Resources</legend><div class="table-actions"><button class="button-compact" type="button" data-select-all>Select all</button><button class="button-compact" type="button" data-deselect-all>Deselect all</button></div><ul class="permission-list"><li><label><input type="checkbox"> Add employee</label></li><li><label><input type="checkbox"> Edit employee</label></li><li><label><input type="checkbox"> View job history</label></li></ul></fieldset>
+            <fieldset class="permission-group" data-permission-group><legend>Sales</legend><div class="table-actions"><button class="button-compact" type="button" data-select-all>Select all</button><button class="button-compact" type="button" data-deselect-all>Deselect all</button></div><ul class="permission-list"><li><label><input type="checkbox"> Add sale</label></li><li><label><input type="checkbox"> Edit sale</label></li><li><label><input type="checkbox"> View sale details</label></li></ul></fieldset>
+            <fieldset class="permission-group" data-permission-group><legend>Reports</legend><div class="table-actions"><button class="button-compact" type="button" data-select-all>Select all</button><button class="button-compact" type="button" data-deselect-all>Deselect all</button></div><ul class="permission-list"><li><label><input type="checkbox"> Top customers</label></li><li><label><input type="checkbox"> Product master list</label></li><li><label><input type="checkbox"> Active employees</label></li></ul></fieldset>
+          </div>
+          <footer class="dialog-footer"><button class="button button-primary" type="button" data-close-rights>Save rights</button><button class="button button-secondary" type="button" data-close-rights>Cancel</button></footer>
+        </section>
+      </div>
+    </div>
+    <script src="../js/script.js" defer></script>
+  </body>
+</html>
