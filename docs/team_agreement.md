@@ -22,4 +22,4 @@ A task or feature is officially **Done** when:
 * **DB Administrator:** Manages ERD designs, SQL scripts, and database integrity.
 * **UI/UX Designer:** Creates wireframes, design systems, CSS themes, and component layouts.
 * **Developer:** Implements feature logic, API routes, and core codebase functionality.
-* **Tester:** Tests features, verifies acceptance criteria, and logs bug reports.
+* **Tester:** Tests features, verifies acceptance criteria, and logs bug reports.   
