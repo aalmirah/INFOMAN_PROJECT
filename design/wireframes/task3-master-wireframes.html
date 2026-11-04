@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HOPE, INC. | Dashboard and User Management POV wireframes</title>
+    <link rel="stylesheet" href="../css/combined-wireframe.css">
+  </head>
+  <body>
+    <main class="combined-page">
+      <header class="page-heading">
+        <p class="eyebrow">Task 2 and Task 3 UI wireframes</p>
+        <h1>Dashboard and User Management</h1>
+        <p>Three role perspectives presented as static, monochrome wireframes.</p>
+      </header>
+
+      <section class="pov-section" aria-labelledby="superadmin-pov">
+        <header class="section-heading"><p class="eyebrow">POV 1</p><h2 id="superadmin-pov">SuperAdmin perspective</h2></header>
+        <div class="pov-dashboard">
+          <aside class="dashboard-sidebar" aria-label="SuperAdmin ERP navigation">
+            <strong>Hope, Inc. ERP</strong>
+            <nav><a class="current">Dashboard</a><span class="nav-label">MODULES</span><a>Customers</a><a>Products</a><a>Human Resources</a><a>Sales</a><a>Reports</a><span class="nav-label">ADMINISTRATION</span><a>User Management</a></nav>
+            <p class="sidebar-footer">User Name (SUPERADMIN) | Logout</p>
+          </aside>
+          <div class="dashboard-main">
+            <header class="topbar"><h1>Dashboard</h1><span class="role-pill">SUPERADMIN</span></header>
+            <div class="welcome-box"><h2>Welcome back, User Name!</h2><p>You have full system access.</p></div>
+            <div class="metrics"><article><h3>Total Customers</h3><strong>0</strong></article><article><h3>Products</h3><strong>0</strong></article><article><h3>Open Orders</h3><strong>0</strong></article><article><h3>Revenue (MTD)</h3><strong>$0</strong></article></div>
+            <div class="quick-actions"><h2>Quick Actions</h2><div class="action-row"><button type="button">View Customers</button><button type="button">Manage Products</button><button type="button">Human Resources</button><button type="button">Sales Pipeline</button><button type="button">Reports</button><button type="button">Manage Users</button></div></div>
+          </div>
+        </div>
+        <article class="role-directory">
+          <header class="directory-header"><div><h3>User Management <span class="role-pill">SUPERADMIN</span></h3><p>Superadmin: Manage Admins and Users. Superadmin accounts are hidden.</p></div><div class="directory-controls"><label for="superadmin-search">Search users</label><input id="superadmin-search" type="search" placeholder="Search users"><button type="button">+ Add User</button></div></header>
+          <div class="table-wrap"><table><caption>NAME | EMAIL | ROLE | STATUS | ACTIONS</caption><thead><tr><th>NAME</th><th>EMAIL</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody>
+            <tr><td>SuperAdmin 1</td><td>superadmin1@hope.example</td><td>SuperAdmin</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+            <tr><td>SuperAdmin 2</td><td>superadmin2@hope.example</td><td>SuperAdmin</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+            <tr><td>Admin 1</td><td>admin1@hope.example</td><td>Admin</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+            <tr><td>Admin 2</td><td>admin2@hope.example</td><td>Admin</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+            <tr><td>User 1</td><td>user1@hope.example</td><td>User</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+          </tbody></table></div>
+        </article>
+      </section>
+
+      <section class="pov-section" aria-labelledby="admin-pov">
+        <header class="section-heading"><p class="eyebrow">POV 2</p><h2 id="admin-pov">Admin perspective</h2></header>
+        <div class="pov-dashboard">
+          <aside class="dashboard-sidebar" aria-label="Admin ERP navigation">
+            <strong>Hope, Inc. ERP</strong>
+            <nav><a class="current">Dashboard</a><span class="nav-label">MODULES</span><a>Customers</a><a>Products</a><a>Human Resources</a><a>Sales</a><a>Reports</a><span class="nav-label">ADMINISTRATION</span><a>User Management</a></nav>
+            <p class="sidebar-footer">User Name (ADMIN) | Logout</p>
+          </aside>
+          <div class="dashboard-main">
+            <header class="topbar"><h1>Dashboard</h1><span class="role-pill">ADMIN</span></header>
+            <div class="welcome-box"><h2>Welcome back, User Name!</h2><p>Manage operational modules and regular users.</p></div>
+            <div class="metrics"><article><h3>Total Customers</h3><strong>0</strong></article><article><h3>Products</h3><strong>0</strong></article><article><h3>Open Orders</h3><strong>0</strong></article><article><h3>Revenue (MTD)</h3><strong>$0</strong></article></div>
+            <div class="quick-actions"><h2>Quick Actions</h2><div class="action-row"><button type="button">View Customers</button><button type="button">Manage Products</button><button type="button">Human Resources</button><button type="button">Sales Pipeline</button><button type="button">Reports</button></div></div>
+          </div>
+        </div>
+        <article class="role-directory">
+          <header class="directory-header"><div><h3>User Management <span class="role-pill">ADMIN</span></h3><p>Admin: Manage Users only. Other Admin accounts show "—" in Actions.</p></div><div class="directory-controls"><label for="admin-search">Search users</label><input id="admin-search" type="search" placeholder="Search users"><button type="button">+ Add User</button></div></header>
+          <div class="table-wrap"><table><caption>NAME | EMAIL | ROLE | STATUS | ACTIONS</caption><thead><tr><th>NAME</th><th>EMAIL</th><th>ROLE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody>
+            <tr><td>Admin 1</td><td>admin1@hope.example</td><td>Admin</td><td>Active</td><td class="no-actions">—</td></tr>
+            <tr><td>Admin 2</td><td>admin2@hope.example</td><td>Admin</td><td>Active</td><td class="no-actions">—</td></tr>
+            <tr><td>User 1</td><td>user1@hope.example</td><td>User</td><td>Active</td><td class="actions"><button type="button">Block</button><button type="button">Rights</button><button type="button">Edit</button></td></tr>
+          </tbody></table></div>
+        </article>
+      </section>
+
+      <section class="pov-section" aria-labelledby="user-pov">
+        <header class="section-heading"><p class="eyebrow">POV 3</p><h2 id="user-pov">User perspective</h2></header>
+        <div class="pov-dashboard">
+          <aside class="dashboard-sidebar" aria-label="User ERP navigation">
+            <strong>Hope, Inc. ERP</strong>
+            <nav><a class="current">Dashboard</a><span class="nav-label">MODULES</span><a>Customers</a><a>Products</a><a>Human Resources</a><a>Sales</a><a>Reports</a></nav>
+            <p class="sidebar-footer">User Name (USER) | Logout</p>
+          </aside>
+          <div class="dashboard-main">
+            <header class="topbar"><h1>Dashboard</h1><span class="role-pill">USER</span></header>
+            <div class="welcome-box"><h2>Welcome back, User Name!</h2><p>View the modules available to your role.</p></div>
+            <div class="metrics"><article><h3>Total Customers</h3><strong>0</strong></article><article><h3>Products</h3><strong>0</strong></article><article><h3>Open Orders</h3><strong>0</strong></article><article><h3>Revenue (MTD)</h3><strong>$0</strong></article></div>
+            <div class="quick-actions"><h2>Quick Actions</h2><div class="action-row"><button type="button">View Customers</button><button type="button">Manage Products</button><button type="button">Human Resources</button><button type="button">Sales Pipeline</button><button type="button">Reports</button></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rights-section" aria-labelledby="rights-title">
+        <div class="rights-dialog" role="dialog" aria-labelledby="rights-title">
+          <header class="dialog-header">
+            <h2 id="rights-title">Rights — User Name</h2>
+            <p>user@hope.com</p>
+            <button class="close-button" type="button" aria-label="Close Rights Dialog">×</button>
+          </header>
+          <div class="rights-content">
+            <div class="module-list">
+              <section class="module-card"><header><h3><label class="module-toggle"><input type="checkbox" disabled> Customer Management</label></h3><div><button type="button">All</button><button type="button">None</button></div></header><div class="permission-grid"><div><label><input type="checkbox" disabled> Add Customer</label><label><input type="checkbox" disabled> Delete Customer</label></div><div><label><input type="checkbox" disabled> Edit Customer</label></div></div></section>
+              <section class="module-card"><header><h3><label class="module-toggle"><input type="checkbox" disabled> Product Management</label></h3><div><button type="button">All</button><button type="button">None</button></div></header><div class="permission-grid"><div><label><input type="checkbox" disabled> Add Product</label><label><input type="checkbox" disabled> Delete Product</label><label><input type="checkbox" disabled> Edit Price</label></div><div><label><input type="checkbox" disabled> Edit Product</label><label><input type="checkbox" disabled> Add Price</label><label><input type="checkbox" disabled> Delete Price</label></div></div></section>
+              <section class="module-card"><header><h3><label class="module-toggle"><input type="checkbox" disabled> Human Resources</label></h3><div><button type="button">All</button><button type="button">None</button></div></header><div class="permission-grid"><div><label><input type="checkbox" disabled> Add Job</label><label><input type="checkbox" disabled> Delete Job</label><label><input type="checkbox" disabled> Edit Department</label><label><input type="checkbox" disabled> Add Employee</label><label><input type="checkbox" disabled> Delete Employee</label><label><input type="checkbox" disabled> Add Job History</label><label><input type="checkbox" disabled> Delete Job History</label></div><div><label><input type="checkbox" disabled> Edit Job</label><label><input type="checkbox" disabled> Add Department</label><label><input type="checkbox" disabled> Delete Department</label><label><input type="checkbox" disabled> Edit Employee</label><label><input type="checkbox" disabled> View Job History</label><label><input type="checkbox" disabled> Edit Job History</label></div></div></section>
+              <section class="module-card"><header><h3><label class="module-toggle"><input type="checkbox" disabled> Sales</label></h3><div><button type="button">All</button><button type="button">None</button></div></header><div class="permission-grid"><div><label><input type="checkbox" disabled> Add Sale</label><label><input type="checkbox" disabled> Delete Sale</label><label><input type="checkbox" disabled> Add Sale Detail</label><label><input type="checkbox" disabled> Delete Sale Detail</label></div><div><label><input type="checkbox" disabled> Edit Sale</label><label><input type="checkbox" disabled> View Sale Details</label><label><input type="checkbox" disabled> Edit Sale Detail</label></div></div></section>
+              <section class="module-card"><header><h3><label class="module-toggle"><input type="checkbox" disabled> Reports</label></h3><div><button type="button">All</button><button type="button">None</button></div></header><div class="permission-grid"><div><label><input type="checkbox" disabled> Top Customers</label><label><input type="checkbox" disabled> Top Products</label><label><input type="checkbox" disabled> All Employees</label><label><input type="checkbox" disabled> Top Sales</label></div><div><label><input type="checkbox" disabled> Product Master List</label><label><input type="checkbox" disabled> Active Employees</label><label><input type="checkbox" disabled> Employee Job History</label></div></div></section>
+            </div>
+          </div>
+          <footer class="dialog-footer"><button class="save-button" type="button">Save Rights</button><button class="cancel-button" type="button">Cancel</button></footer>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
