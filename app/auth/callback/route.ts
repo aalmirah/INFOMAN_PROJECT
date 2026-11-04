@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 function getSafeNextPath(value: string | null): string {
   switch (value) {
     case "/set-password":
+    case "/reset-password/confirm":
     case "/session":
     case "/register?oauth=google":
       return value;
@@ -18,17 +19,18 @@ export async function GET(request: NextRequest) {
   const tokenHash = url.searchParams.get("token_hash");
   const tokenType = url.searchParams.get("type");
   const nextPath = getSafeNextPath(url.searchParams.get("next"));
+  const isPasswordReset = nextPath === "/reset-password/confirm";
 
   if (
     !code &&
     !(
-      nextPath === "/set-password" &&
+      (nextPath === "/set-password" || isPasswordReset) &&
       tokenHash &&
       tokenType === "recovery"
     )
   ) {
     const errorUrl = new URL(
-      nextPath === "/set-password"
+      nextPath === "/set-password" || isPasswordReset
         ? "/login?error=recovery"
         : "/login?error=callback",
       request.url,
@@ -57,30 +59,47 @@ export async function GET(request: NextRequest) {
   });
 
   let error;
+  let isRecoverySession = false;
   if (code) {
-    ({ error } = await supabase.auth.exchangeCodeForSession(code));
+    const result = await supabase.auth.exchangeCodeForSession(code);
+    error = result.error;
+    isRecoverySession =
+      "redirectType" in result.data &&
+      result.data.redirectType === "recovery";
   } else if (
-    nextPath === "/set-password" &&
+    (nextPath === "/set-password" || isPasswordReset) &&
     tokenHash &&
     tokenType === "recovery"
   ) {
-    ({ error } = await supabase.auth.verifyOtp({
+    const result = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
       type: "recovery",
-    }));
+    });
+    error = result.error;
+    isRecoverySession = !error;
   } else {
     return NextResponse.redirect(
       new URL("/login?error=callback", request.url),
     );
   }
-  if (error) {
+  if (error || (isPasswordReset && !isRecoverySession)) {
     const errorUrl = new URL(
-      nextPath === "/set-password"
+      nextPath === "/set-password" || isPasswordReset
         ? "/login?error=recovery"
         : "/login?error=callback",
       request.url,
     );
     return NextResponse.redirect(errorUrl);
+  }
+
+  if (isPasswordReset) {
+    response.cookies.set("hope_password_recovery", "verified", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/reset-password/confirm",
+      maxAge: 15 * 60,
+    });
   }
 
   return response;

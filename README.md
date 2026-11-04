@@ -56,6 +56,16 @@ For Google sign-in, configure the local callback URL
 allowlist and Google provider settings. Do not change shared project settings
 without coordinating with the DB Admin.
 
+For password reset, set the Supabase Auth Site URL to the app's primary origin
+and also allow this local redirect URL in Supabase Auth:
+`http://localhost:3000/auth/callback?next=/reset-password/confirm`. Password
+recovery email delivery requires an enabled Auth email provider and working
+SMTP configuration. Keep the recovery email template's confirmation link
+(`{{ .ConfirmationURL }}`) so Supabase can validate the expiring link and
+return to the app. Add the equivalent callback URL for each deployed app
+origin when one is available. If SMTP/email delivery is disabled or not
+configured, reset requests cannot deliver a link.
+
 ### DEV03 database setup
 
 Before testing login, logout, blocked/pending-user checks, or first-login
