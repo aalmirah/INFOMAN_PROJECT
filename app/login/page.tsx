@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 
 type LoginStatus = {
   kind: "error" | "success";
@@ -46,12 +47,13 @@ export default function LoginPage() {
       callback:
         "Sign-in could not be completed. Please try again.",
       recovery:
-        "This password setup link is invalid or expired. Contact your administrator to request a new link.",
+        "This password recovery link is invalid or expired. Request a new reset link.",
     };
 
     let active = true;
-    const passwordUpdated =
-      new URLSearchParams(window.location.search).get("password") === "updated";
+    const passwordChange = new URLSearchParams(window.location.search).get(
+      "password",
+    );
     void getSupabaseClient()
       .auth.getUser()
       .then(async ({ data: { user }, error: authError }) => {
@@ -60,10 +62,15 @@ export default function LoginPage() {
           setStatus({ kind: "error", message: messages[error] });
         }
         if (authError || !user) {
-          if (passwordUpdated) {
+          if (passwordChange === "updated") {
             setStatus({
               kind: "success",
               message: "Your password was set. Sign in with your new password.",
+            });
+          } else if (passwordChange === "reset") {
+            setStatus({
+              kind: "success",
+              message: "Your password was reset. Sign in with your new password.",
             });
           }
           return;
@@ -236,17 +243,12 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-layout functional-auth">
-      <section className="auth-card" aria-labelledby="login-title">
-        <header className="auth-header">
-          <Link className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="login-title">Sign in to your account</h1>
-          <p>Enter your credentials to access HOPE Inc. ERP.</p>
-        </header>
-
+    <AuthPageFrame
+      activeLink="login"
+      closeHref="/register"
+      description="Welcome back. Enter your account info."
+      title="Sign in"
+    >
         <form className="form-stack" onSubmit={handleSubmit}>
           <div className="field">
             <label htmlFor="login-email">
@@ -287,6 +289,10 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <div className="login-recovery-link">
+            <Link href="/reset-password">Forgot Password?</Link>
+          </div>
+
           <div className="form-actions">
             <button
               className="button button-primary"
@@ -302,6 +308,29 @@ export default function LoginPage() {
               onClick={handleGoogleSignIn}
               type="button"
             >
+              <svg
+                aria-hidden="true"
+                className="google-mark"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#4285F4"
+                  d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M6.54 13.58a5.85 5.85 0 0 1 0-3.16V7.89H3.3a9.5 9.5 0 0 0 0 8.22l3.24-2.53Z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.49 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53C7.31 8.11 9.46 6.39 12 6.39Z"
+                />
+              </svg>
               Continue with Google
             </button>
           </div>
@@ -320,7 +349,6 @@ export default function LoginPage() {
         <p className="auth-footer">
           Don&apos;t have an account? <Link href="/register">Register</Link>
         </p>
-      </section>
-    </main>
+    </AuthPageFrame>
   );
 }

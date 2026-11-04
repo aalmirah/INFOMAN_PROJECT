@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getAuthProfile } from "@/lib/auth/profile";
+import { validatePasswordPair } from "@/lib/auth/password-validation";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 
 export default function SetPasswordPage() {
   const router = useRouter();
@@ -86,12 +88,9 @@ export default function SetPasswordPage() {
     const password = String(formData.get("password") ?? "");
     const confirmation = String(formData.get("confirmation") ?? "");
 
-    if (password.length < 6) {
-      setStatus("Use a password with at least 6 characters.");
-      return;
-    }
-    if (password !== confirmation) {
-      setStatus("Passwords do not match.");
+    const validationError = validatePasswordPair(password, confirmation);
+    if (validationError) {
+      setStatus(validationError);
       return;
     }
 
@@ -163,17 +162,11 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <main className="auth-layout functional-auth">
-      <section className="auth-card" aria-labelledby="set-password-title">
-        <header className="auth-header">
-          <Link className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="set-password-title">Set your password</h1>
-          <p>Choose a new password to finish setting up your account.</p>
-        </header>
-
+    <AuthPageFrame
+      activeLink="login"
+      description="Choose a secure password for your account."
+      title="Set a new password"
+    >
         {isReady ? (
           <form className="form-stack" onSubmit={handleSubmit}>
             <div className="field">
@@ -241,7 +234,6 @@ export default function SetPasswordPage() {
         <p className="auth-footer">
           <Link href="/login">Back to Sign In</Link>
         </p>
-      </section>
-    </main>
+    </AuthPageFrame>
   );
 }
