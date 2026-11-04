@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { AuthPageFrame } from "@/components/auth/auth-page-frame";
 
 type RegistrationStatus = {
   kind: "success" | "error";
@@ -387,18 +388,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="auth-layout register-wireframe">
-      <section className="auth-card" aria-labelledby="register-title">
-        <header className="auth-header">
-          <Link className="brand" href="/register">
-            <span className="brand-mark" aria-hidden="true">
-              H
-            </span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="register-title">Create your account</h1>
-          <p>Join Hope Inc. ERP</p>
-        </header>
+    <AuthPageFrame
+      activeLink="register"
+      closeHref="/login"
+      description="Join Hope Inc. ERP"
+      title="Create your account"
+    >
 
         <div className="status-note role-note" role="note">
           <span>
@@ -603,7 +598,6 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <Link href="/login">Sign in</Link>
         </p>
-      </section>
-    </main>
+    </AuthPageFrame>
   );
 }

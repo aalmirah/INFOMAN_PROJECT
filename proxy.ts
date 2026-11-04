@@ -59,23 +59,41 @@ export async function proxy(request: NextRequest) {
   const isGoogleRegistrationCallback =
     pathname === "/register" &&
     request.nextUrl.searchParams.get("oauth") === "google";
+  const isAuthCallback = pathname === "/auth/callback";
   const isPublicRoute =
     pathname === "/login" ||
     pathname === "/register" ||
+    pathname === "/reset-password" ||
     pathname === "/auth/callback";
   const isProtectedRoute =
     pathname === "/dashboard" ||
     pathname === "/session" ||
-    pathname === "/set-password";
+    pathname === "/set-password" ||
+    pathname === "/reset-password/confirm";
 
   if (!user) {
     if (isProtectedRoute || pathname === "/") {
-      return redirectTo(request, response, "/login");
+      return redirectTo(
+        request,
+        response,
+        "/login",
+        pathname === "/reset-password/confirm" ? "recovery" : undefined,
+      );
     }
     return response;
   }
 
+  if (
+    pathname === "/reset-password/confirm" &&
+    request.cookies.get("hope_password_recovery")?.value !== "verified"
+  ) {
+    return redirectTo(request, response, "/login", "recovery");
+  }
+
   if (isGoogleRegistrationCallback) {
+    return response;
+  }
+  if (isAuthCallback) {
     return response;
   }
 
@@ -103,7 +121,7 @@ export async function proxy(request: NextRequest) {
     return redirectTo(request, response, "/login", "pending");
   }
 
-  if (profile.mustChangePassword) {
+  if (profile.mustChangePassword && pathname !== "/reset-password/confirm") {
     if (pathname === "/set-password") return response;
     return redirectTo(request, response, "/set-password");
   }
