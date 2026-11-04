@@ -81,6 +81,41 @@ async function main() {
       console.log(`${table}: ${rows[0].count}`);
     }
 
+    const { rows: activeRoleRows } = await client.query(
+      "SELECT count(*)::integer AS count FROM role WHERE status = 'Active'",
+    );
+    report('active default roles', activeRoleRows[0].count, 3, failures);
+
+    const { rows: activeModuleRows } = await client.query(
+      "SELECT count(*)::integer AS count FROM module WHERE status = 'Active'",
+    );
+    report('active modules', activeModuleRows[0].count, 5, failures);
+
+    const expectedModuleRights = new Map([
+      ['Customer', 3],
+      ['Product', 6],
+      ['Human Resources', 13],
+      ['Sales', 7],
+      ['Reports', 7],
+    ]);
+    const { rows: moduleRightRows } = await client.query(
+      'SELECT module_name, active_right_count FROM v_module_right_counts',
+    );
+    const moduleRightCounts = new Map(
+      moduleRightRows.map((row) => [row.module_name, row.active_right_count]),
+    );
+    console.log('Active rights by module:');
+    for (const [moduleName, expected] of expectedModuleRights) {
+      const actual = moduleRightCounts.get(moduleName);
+      console.log(`${moduleName}: ${actual === undefined ? 'missing' : actual}`);
+      report(`${moduleName} active rights`, actual, expected, failures);
+    }
+
+    const { rows: activeRightRows } = await client.query(
+      "SELECT count(*)::integer AS count FROM rights WHERE status = 'Active'",
+    );
+    report('active rights count', activeRightRows[0].count, 36, failures);
+
     const saleTotals = await client.query(`
       SELECT s.transno,
              COALESCE(SUM(sd.quantity * effective_price.unitprice), 0)::numeric(12, 2) AS total

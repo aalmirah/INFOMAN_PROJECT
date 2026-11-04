@@ -12,6 +12,10 @@
     "db:status": "node db/scripts/migrate.js status",
     "db:reset": "node db/scripts/migrate.js reset",
     "db:seed": "node db/scripts/seed.js",
+    "db:seed:team": "node db/scripts/seed-team.js",
+    "db:seed:demo": "node db/scripts/seed-demo.js",
+    "db:issue-setup-links": "node db/scripts/issue-setup-links.js",
+    "db:check-sql-secrets": "node db/scripts/check-sql-secrets.js",
     "db:verify": "node db/scripts/verify.js"
   },
   "dependencies": {

@@ -21,11 +21,20 @@ operating systems. No Docker is required.
 |   |   |-- 004_password_reset_token.sql
 |   |   |-- 004_password_reset_token.md
 |   |   `-- README.md
+|   |-- seeds
+|   |   |-- 001_default_roles_modules_rights.sql
+|   |   |-- team.example.csv
+|   |   `-- team.csv                 (local only; ignored by Git)
 |   |-- scripts
 |   |   |-- migrate.js
+|   |   |-- check-sql-secrets.js
+|   |   |-- issue-setup-links.js
 |   |   |-- seed.js
+|   |   |-- seed-team.js
+|   |   |-- seed-demo.js
+|   |   |-- lib
+|   |   |   `-- database.js
 |   |   `-- verify.js
-|   `-- seeds
 `-- node_modules/                 (local only; ignored by Git)
 ```
 
@@ -38,6 +47,21 @@ token table in
 [migrations/004_password_reset_token.md](migrations/004_password_reset_token.md)
 covers first-password setup and password recovery. The optional `db/seeds`
 directory remains for additional repeat-safe seed scripts.
+
+The repeat-safe default role/module/right catalogue is in
+`db/seeds/001_default_roles_modules_rights.sql`. For team bootstrap, copy
+`db/seeds/team.example.csv` to the ignored `db/seeds/team.csv`, replace its
+fake rows locally with the team's names and email addresses, and never commit
+that file. `.env` and `db/seeds/team.csv` are ignored by Git.
+
+The relevant `.gitignore` rules are:
+
+```gitignore
+.env
+.env.*
+!.env.example
+db/seeds/team.csv
+```
 
 ## Team database approach
 
@@ -163,16 +187,103 @@ Migrations complete. Applied 2 migration(s).
 npm run db:seed
 ```
 
-The initial sample data is already applied by the second migration. Until
-extra seed scripts are added, expected output is:
+Expected: `Ran 001_default_roles_modules_rights.sql` and `Seeding complete.
+Ran 1 seed file(s).` The command can be run repeatedly. It sets up the
+Superadmin, Admin, and User roles, five modules, and all 36 rights.
+
+For one Superadmin account per teammate, first copy the example CSV:
 
 ```text
-No seed files found.
+npm run db:seed:team
 ```
 
-Future seed files must be repeat-safe (for example, use
-`INSERT ... ON CONFLICT DO NOTHING`). Seed files run in filename order, each
-in its own transaction.
+The command reads `db/seeds/team.csv`, inserts users with no password and
+`must_set_password=true`, and logs only a processed count. If the file is
+missing, copy `db/seeds/team.example.csv` to `db/seeds/team.csv` and edit the
+copy locally. Like the other bootstrap scripts, it requires a development
+database on localhost or an explicitly allowed development host. Do not
+commit the real roster.
+
+The optional Lisa Park (Admin) and Alex Rivera (User) demo seed is restricted
+to `DB_ENV=development` and localhost or a host explicitly listed in
+`DB_ALLOWED_DEV_HOSTS`. For a hosted development database only, add its exact
+hostname to `DB_ALLOWED_DEV_HOSTS` as a comma-separated list; leave it blank
+for localhost:
+
+```text
+npm run db:seed:demo
+```
+
+It creates no passwords and grants three sample rights to Lisa and two to
+Alex. Omit this command for non-demo development databases.
+
+## First-password setup links
+
+Set `APP_BASE_URL` to the app's local URL and, if needed, configure
+`SET_PASSWORD_TOKEN_TTL` (default `24 hours`). To issue/reissue setup links for
+all active, unblocked accounts with no password:
+
+```text
+npm run db:issue-setup-links
+```
+
+This command is restricted to development DB targets. It invalidates any
+previous active setup link for each account, stores only a SHA-256 token hash,
+then prints each new one-time link to the console. Deliver the links securely;
+do not save, redirect, screenshot, or commit this output. The app's
+`/set-password?token=...` page hashes the submitted token, validates it with
+purpose `set_password`, and, in one transaction, conditionally consumes that
+token while storing the password hash and setting `must_set_password=false`.
+Reject the submission if the conditional token update returns no row. Use a
+password-hashing algorithm such as Argon2id in the app; never put the password
+or raw token in logs.
+
+## Pre-commit SQL secret check
+
+After staging changes, run:
+
+```text
+npm run db:check-sql-secrets
+```
+
+It scans staged SQL and fails if it finds a bcrypt/Argon2 hash or a
+case-insensitive `password=` assignment. Use it as a pre-commit check; do not
+stage real credentials or roster data.
+
+## Task 5 verification checklist
+
+After migrations and `npm run db:seed`, run `npm run db:verify`. It must report
+3 active roles, 5 active modules, 36 active rights, and these exact counts:
+
+| Module | Active rights |
+|---|---:|
+| Customer | 3 |
+| Product | 6 |
+| Human Resources | 13 |
+| Sales | 7 |
+| Reports | 7 |
+
+The same counts can be checked directly:
+
+```sql
+SELECT module_name, active_right_count
+FROM v_module_right_counts
+ORDER BY module_code;
+
+SELECT count(*) AS total_active_rights
+FROM rights
+WHERE status = 'Active';
+-- 36
+```
+
+After the team seed, the inserted roster accounts have a NULL password hash,
+`must_set_password=true`, and the Superadmin role; rerunning the seed does not
+reset an already-set password. The optional demo seed creates Lisa Park as
+Admin and Alex Rivera as User, with five active sample permission rows and no
+new passwords. After setup-link issuance, each eligible account should have
+one active unused `set_password` token; a second run leaves one active token
+per eligible account and inactivates each prior token. The check script should
+pass when staged SQL contains no password assignments or password hashes.
 
 ### 8. Verify the database
 
@@ -213,6 +324,10 @@ from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
 | `npm run db:seed` | Run repeat-safe SQL seed files in filename order |
 | `npm run db:verify` | Print table row counts and verify sample totals, prices, and foreign keys |
 | `npm run db:reset` | Drop and recreate the configured development database after confirmation |
+| `npm run db:seed:team` | Insert/update Superadmin accounts from ignored `db/seeds/team.csv` |
+| `npm run db:seed:demo` | Add demo users and permissions on an explicitly allowed development host only |
+| `npm run db:issue-setup-links` | Issue one-time console-only first-password links for eligible accounts |
+| `npm run db:check-sql-secrets` | Check staged SQL for password assignments and password hashes |
 
 Each migration runs in its own transaction. The runner records the migration
 filename and SHA-256 checksum in `schema_migrations`; it refuses to continue
