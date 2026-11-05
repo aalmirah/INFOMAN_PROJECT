@@ -18,6 +18,8 @@ operating systems. No Docker is required.
 |   |   |-- 002_hope_sample_data.sql
 |   |   |-- 003_user_management.sql
 |   |   |-- 003_user_management.md
+|   |   |-- 004_password_reset_token.sql
+|   |   |-- 004_password_reset_token.md
 |   |   `-- README.md
 |   |-- scripts
 |   |   |-- migrate.js
@@ -32,7 +34,10 @@ migrations. See [migrations/README.md](migrations/README.md) for Task 2 source
 limitations and assumptions, and
 [migrations/003_user_management.md](migrations/003_user_management.md) for the
 Task 3 design, ERD, authorization notes, and verification queries. The optional
-`db/seeds` directory remains for additional repeat-safe seed scripts.
+token table in
+[migrations/004_password_reset_token.md](migrations/004_password_reset_token.md)
+covers first-password setup and password recovery. The optional `db/seeds`
+directory remains for additional repeat-safe seed scripts.
 
 ## Team database approach
 
