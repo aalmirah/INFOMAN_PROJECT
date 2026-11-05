@@ -99,6 +99,9 @@ export default function SessionPage() {
         )}
 
         <div className="form-actions">
+          <Link className="button button-secondary" href="/user-management">
+            User Management
+          </Link>
           <button
             className="button button-primary"
             disabled={isLoading || isSigningOut}

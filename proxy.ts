@@ -63,13 +63,17 @@ export async function proxy(request: NextRequest) {
     pathname === "/login" ||
     pathname === "/register" ||
     pathname === "/auth/callback";
+  const isUserManagementRoute =
+    pathname === "/user-management" ||
+    pathname.startsWith("/user-management/");
   const isProtectedRoute =
     pathname === "/dashboard" ||
     pathname === "/session" ||
-    pathname === "/set-password";
+    pathname === "/set-password" ||
+    isUserManagementRoute;
 
   if (!user) {
-    if (isProtectedRoute || pathname === "/") {
+    if (isProtectedRoute) {
       return redirectTo(request, response, "/login");
     }
     return response;
@@ -106,6 +110,14 @@ export async function proxy(request: NextRequest) {
   if (profile.mustChangePassword) {
     if (pathname === "/set-password") return response;
     return redirectTo(request, response, "/set-password");
+  }
+
+  if (
+    isUserManagementRoute &&
+    profile.role !== "admin" &&
+    profile.role !== "superadmin"
+  ) {
+    return redirectTo(request, response, "/session", "forbidden");
   }
 
   if (pathname === "/set-password") {
