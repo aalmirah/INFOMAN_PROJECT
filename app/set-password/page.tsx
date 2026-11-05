@@ -55,7 +55,9 @@ export default function SetPasswordPage() {
             ? "/login?error=blocked"
             : !profile.isActive
               ? "/login?error=inactive"
-              : "/login?error=pending",
+              : profile.approvalStatus === "rejected"
+                ? "/login?error=rejected"
+                : "/login?error=pending",
         );
         return;
       }

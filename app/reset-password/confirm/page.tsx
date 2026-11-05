@@ -51,7 +51,9 @@ export default function ResetPasswordConfirmPage() {
             ? "/login?error=blocked"
             : profile && !profile.isActive
               ? "/login?error=inactive"
-              : profile && profile.approvalStatus !== "approved"
+              : profile && profile.approvalStatus === "rejected"
+                ? "/login?error=rejected"
+                : profile && profile.approvalStatus !== "approved"
                 ? "/login?error=pending"
                 : "/login?error=profile",
         );

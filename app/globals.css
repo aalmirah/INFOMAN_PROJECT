@@ -1687,7 +1687,8 @@
   color: var(--color-text-secondary);
 }
 
-.status-blocked {
+.status-blocked,
+.status-rejected {
   background: var(--color-deleted-shade);
   color: #a64258;
 }
