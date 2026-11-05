@@ -587,4 +587,8 @@
   .table-toolbar { align-items: stretch; }
   .table-filters { align-items: stretch; flex-direction: column; }
   .role-filter { width: 100%; }
+  .um-pagination { flex-direction: column; align-items: stretch; text-align: center; }
+  .um-pagination > div { justify-content: space-between; }
+  .um-edit-name-fields { flex-wrap: wrap; }
+  .um-form-actions { flex-wrap: wrap; }
 }
