@@ -52,9 +52,48 @@ Other team members should clone/pull the PR branch, create their own
 between computers. Restart `npm run dev` after changing `.env.local`.
 
 For Google sign-in, configure the local callback URL
-`http://localhost:3000/register?oauth=google` in the team's Supabase Auth and
-Google provider settings. Do not change shared project settings without
-coordinating with the DB Admin.
+`http://localhost:3000/auth/callback` in the team's Supabase Auth redirect
+allowlist and Google provider settings. Do not change shared project settings
+without coordinating with the DB Admin.
+
+For password reset, set the Supabase Auth Site URL to the app's primary origin
+and also allow this local redirect URL in Supabase Auth:
+`http://localhost:3000/auth/callback?next=/reset-password/confirm`. Password
+recovery email delivery requires an enabled Auth email provider and working
+SMTP configuration. Keep the recovery email template's confirmation link
+(`{{ .ConfirmationURL }}`) so Supabase can validate the expiring link and
+return to the app. Add the equivalent callback URL for each deployed app
+origin when one is available. If SMTP/email delivery is disabled or not
+configured, reset requests cannot deliver a link.
+
+### DEV03 database setup
+
+Before testing login, logout, blocked/pending-user checks, or first-login
+password changes, the DB Admin must review and apply
+[`supabase/migration/dev03_auth_fields.sql`](./supabase/migration/dev03_auth_fields.sql)
+to the development Supabase project. This adds `profiles.is_blocked`,
+`profiles.is_active`, and `profiles.must_change_password`. An Auth trigger
+clears the password-change flag only after Supabase Auth changes the user's
+password.
+The app deliberately denies sign-in when required profile fields cannot be
+verified.
+
+The password-change trigger clears `profiles.must_change_password` when the
+password is changed through Supabase Auth. Newly registered users remain
+subject to the existing `approval_status` check. Supabase Auth applies its
+configured password and request rate limits; do not implement password hashing
+in the app. Until the Dashboard exists, approved users who finish setup are
+sent to `/session`, a temporary page with a Logout button. Until a Superadmin UI
+exists, the DB Admin may review
+[`supabase/migration/dev03_approve_pending_user.sql`](./supabase/migration/dev03_approve_pending_user.sql)
+as a per-user approval template. After registration, the browser establishes a
+Supabase Auth session without sending email and remains on the existing
+`/register` page. While that page stays open, it checks the profile every five
+seconds. When the DB Admin changes the profile from `pending` to `approved`,
+it routes the user to `/set-password`; after saving a password, the user signs
+out and signs in normally. Approval detection requires the user to return to
+the same browser where registration was completed if that page/session was
+closed. No email is sent by this flow.
 
 Run the available project checks with:
 
