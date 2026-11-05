@@ -67,7 +67,10 @@ export default function ErpShell({ active, role, title, children }: ErpShellProp
     <div className="erp-shell" data-role={role ?? "user"}>
       <aside className="erp-sidebar">
         <Link className="erp-sidebar__brand" href="/">
-          HOPE, INC. ERP
+          <span className="landing-brand__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 5h4v5h6V5h4v14h-4v-5H9v5H5z" /></svg>
+          </span>
+          <span>HOPE, INC. ERP</span>
         </Link>
         <Link
           aria-current={active === "dashboard" ? "page" : undefined}
