@@ -27,9 +27,10 @@ function toAccountStatus(profile: {
   is_blocked: boolean;
   is_active: boolean;
   approval_status: string;
-}): "blocked" | "inactive" | "pending" | "active" {
+}): "blocked" | "inactive" | "pending" | "rejected" | "active" {
   if (profile.is_blocked) return "blocked";
   if (!profile.is_active) return "inactive";
+  if (profile.approval_status === "rejected") return "rejected";
   if (profile.approval_status !== "approved") return "pending";
   return "active";
 }
@@ -52,7 +53,7 @@ export async function GET(request: Request): Promise<Response> {
   if (
     page === null ||
     !["all", "user", "admin", "superadmin"].includes(requestedRole) ||
-    !["all", "active", "pending", "inactive", "blocked"].includes(
+    !["all", "active", "pending", "rejected", "inactive", "blocked"].includes(
       requestedStatus,
     )
   ) {
@@ -90,6 +91,11 @@ export async function GET(request: Request): Promise<Response> {
       .eq("is_blocked", false)
       .eq("is_active", true)
       .eq("approval_status", "pending");
+  } else if (requestedStatus === "rejected") {
+    query = query
+      .eq("is_blocked", false)
+      .eq("is_active", true)
+      .eq("approval_status", "rejected");
   } else if (requestedStatus === "active") {
     query = query
       .eq("is_blocked", false)

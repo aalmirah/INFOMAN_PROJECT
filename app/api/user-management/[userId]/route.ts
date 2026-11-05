@@ -4,6 +4,10 @@ import {
   getUserManagementActor,
 } from "@/lib/auth/user-management";
 import {
+  isLastActiveSuperadmin,
+  LAST_SUPERADMIN_MESSAGE,
+} from "@/lib/auth/superadmin";
+import {
   isSameOriginRequest,
   readJsonRequestBody,
 } from "@/lib/user-management/request";
@@ -63,6 +67,21 @@ export async function PATCH(
   }
   if (!profile) {
     return Response.json({ error: "User not found." }, { status: 404 });
+  }
+  if (profile.role === "superadmin" && body.isBlocked === true) {
+    const isLast = await isLastActiveSuperadmin(profile.id);
+    if (isLast === null) {
+      return Response.json(
+        { error: "Could not verify Superadmin safety. Action blocked." },
+        { status: 503 },
+      );
+    }
+    if (isLast) {
+      return Response.json(
+        { error: LAST_SUPERADMIN_MESSAGE },
+        { status: 409 },
+      );
+    }
   }
   if (!canManageProfile(result.actor, profile)) {
     return Response.json(

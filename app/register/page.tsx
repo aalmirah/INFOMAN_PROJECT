@@ -119,6 +119,11 @@ export default function RegisterPage() {
         if (!active || error || !user || isGoogleRegistration) return;
 
         const { profile } = await getAuthProfile(supabase, user.id);
+        if (active && profile?.approvalStatus === "rejected") {
+          await supabase.auth.signOut();
+          router.replace("/login?error=rejected");
+          return;
+        }
         if (active && profile?.approvalStatus === "pending") {
           setIsWaitingForApproval(true);
           setStatus({
@@ -208,8 +213,14 @@ export default function RegisterPage() {
           return;
         }
 
-        if (profile.approvalStatus === "approved") {
+        if (profile.approvalStatus === "rejected") {
+          await supabase.auth.signOut();
           setIsWaitingForApproval(false);
+          router.replace("/login?error=rejected");
+          return;
+        }
+
+        if (profile.approvalStatus === "approved") {
           router.replace(
             profile.mustChangePassword ? "/set-password" : "/session",
           );
