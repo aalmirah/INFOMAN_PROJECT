@@ -11,8 +11,7 @@
     "db:migrate": "node db/scripts/migrate.js migrate",
     "db:status": "node db/scripts/migrate.js status",
     "db:reset": "node db/scripts/migrate.js reset",
-    "db:seed": "node db/scripts/seed.js",
-    "db:verify": "node db/scripts/verify.js"
+    "db:seed": "node db/scripts/seed.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 export default function SessionPage() {
@@ -10,13 +11,14 @@ export default function SessionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [canManageUsers, setCanManageUsers] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     void getSupabaseClient()
       .auth.getUser()
-      .then(({ data: { user }, error }) => {
+      .then(async ({ data: { user }, error }) => {
         if (!active) return;
         if (error) {
           setStatus("We couldn't verify your session. Please try again.");
@@ -27,6 +29,12 @@ export default function SessionPage() {
           return;
         }
         setEmail(user.email ?? null);
+        const { profile } = await getAuthProfile(getSupabaseClient(), user.id);
+        if (active) {
+          setCanManageUsers(
+            profile?.role === "admin" || profile?.role === "superadmin",
+          );
+        }
       })
       .catch(() => {
         if (active) {
@@ -99,6 +107,11 @@ export default function SessionPage() {
         )}
 
         <div className="form-actions">
+          {canManageUsers && (
+            <Link className="button button-secondary" href="/user-management">
+              User Management
+            </Link>
+          )}
           <button
             className="button button-primary"
             disabled={isLoading || isSigningOut}

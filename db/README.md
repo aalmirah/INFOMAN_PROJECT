@@ -14,21 +14,16 @@ operating systems. No Docker is required.
 |-- db
 |   |-- README.md
 |   |-- migrations
-|   |   |-- 001_hope_base_tables.sql
-|   |   |-- 002_hope_sample_data.sql
-|   |   `-- README.md
 |   |-- scripts
 |   |   |-- migrate.js
-|   |   |-- seed.js
-|   |   `-- verify.js
+|   |   `-- seed.js
 |   `-- seeds
 `-- node_modules/                 (local only; ignored by Git)
 ```
 
-The base schema and guide-requested sample records are in separate migrations.
-See [migrations/README.md](migrations/README.md) for source limitations,
-assumptions, differences, and audit objects reserved for Task 6. The optional
-`db/seeds` directory remains for additional repeat-safe seed scripts.
+`db/migrations` and `db/seeds` intentionally contain no project schema or seed
+data yet. Do not copy the older SQL files from `database/` into this workflow
+without a reviewed migration plan.
 
 ## Team database approach
 
@@ -143,10 +138,12 @@ npm run db:migrate
 Expected on a new project database:
 
 ```text
-Applied 001_hope_base_tables.sql
-Applied 002_hope_sample_data.sql
-Migrations complete. Applied 2 migration(s).
+No migration files found.
 ```
+
+When migrations are added, output instead includes `Applied
+NNN_description.sql` for each pending file, followed by
+`Migrations complete. Applied N migration(s).`
 
 ### 7. Load seed data
 
@@ -154,46 +151,32 @@ Migrations complete. Applied 2 migration(s).
 npm run db:seed
 ```
 
-The initial sample data is already applied by the second migration. Until
-extra seed scripts are added, expected output is:
+Expected before seed files have been added:
 
 ```text
 No seed files found.
 ```
 
-Future seed files must be repeat-safe (for example, use
+Each future seed file must be repeat-safe (for example, use
 `INSERT ... ON CONFLICT DO NOTHING`). Seed files run in filename order, each
 in its own transaction.
 
-### 8. Verify the database
+### 8. Verify migration status and server version
 
 ```text
 npm run db:status
 ```
 
-Expected after the first migration:
+Expected before migrations have been added:
 
 ```text
-applied  001_hope_base_tables.sql
-applied  002_hope_sample_data.sql
-Status complete. 0 pending.
+No migration files found.
 ```
-
-Run the row-count and data checks:
-
-```text
-npm run db:verify
-```
-
-Expected counts: employee 4, job 4, department 4, jobhistory 1, customer 5,
-product 5, pricehist 9, sales 4, salesdetail 13, payment 4. The checks should
-all report `PASS`: T-001 234.50, T-002 140.00, T-003 510.00, active sales
-884.50, P-003 current price 28.00, P-004 has no current price, and zero orphan
-foreign keys. `db:verify` exits non-zero if any assertion fails.
 
 To confirm the connected database version, connect using the same settings
 from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
-`16` or newer.
+`16` or newer. Once migrations exist, status lists each as `applied` or
+`pending` and ends with the number pending.
 
 ## Available commands
 
@@ -202,7 +185,6 @@ from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
 | `npm run db:migrate` | Apply pending numbered SQL migrations in filename order |
 | `npm run db:status` | Show applied and pending migrations |
 | `npm run db:seed` | Run repeat-safe SQL seed files in filename order |
-| `npm run db:verify` | Print table row counts and verify sample totals, prices, and foreign keys |
 | `npm run db:reset` | Drop and recreate the configured development database after confirmation |
 
 Each migration runs in its own transaction. The runner records the migration

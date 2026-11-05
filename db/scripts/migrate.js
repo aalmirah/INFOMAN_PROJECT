@@ -78,15 +78,8 @@ async function connect(config = connectionConfig()) {
     await client.connect();
     return client;
   } catch (error) {
-    const details = Array.isArray(error.errors)
-      ? error.errors.map((cause) => cause.message).filter(Boolean).join('; ')
-      : error.message;
-    const connectionError = new Error(
-      `Could not connect to the database${error.code ? ` (${error.code})` : ''}: ${details || 'unknown connection error'}`,
-      { cause: error },
-    );
     await client.end();
-    throw connectionError;
+    throw error;
   }
 }
 
