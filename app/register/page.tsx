@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import AuthModal from "@/components/auth-modal";
+import GoogleLogo from "@/components/google-logo";
 import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -387,28 +389,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="auth-layout register-wireframe">
-      <section className="auth-card" aria-labelledby="register-title">
-        <header className="auth-header">
-          <Link className="brand" href="/register">
-            <span className="brand-mark" aria-hidden="true">
-              H
-            </span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="register-title">Create your account</h1>
-          <p>Join Hope Inc. ERP</p>
-        </header>
-
-        <div className="status-note role-note" role="note">
-          <span>
-            New accounts are created as User. Superadmin and Admin roles can
-            only be assigned by existing administrators.
-          </span>
-        </div>
-
-        <form className="form-stack" onSubmit={handleSubmit}>
-          <div className="register-name-fields">
+    <AuthModal titleId="register-title" title="Create your account">
+        <form className="wireframe-form" onSubmit={handleSubmit}>
+          <div className="auth-modal__name-row">
             <div className="field">
               <label htmlFor="register-first-name">
                 First name <span className="required" aria-hidden="true">*</span>
@@ -533,77 +516,52 @@ export default function RegisterPage() {
             )}
           </div>
 
-          <div className="form-actions">
-            <button
-              className="button button-primary"
-              type="submit"
-              disabled={
-                isSubmitting || isGoogleSigningIn || isWaitingForApproval
-              }
-            >
-              {isSubmitting ? "Registering..." : "Register"}
-            </button>
-            <div className="form-divider" aria-hidden="true">
-              OR
-            </div>
-            <button
-              className="sso-button"
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={
-                isSubmitting || isGoogleSigningIn || isWaitingForApproval
-              }
-            >
-              <svg
-                className="google-mark"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <path
-                  fill="#4285F4"
-                  d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.5Z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M6.54 13.58a5.85 5.85 0 0 1 0-3.16V7.89H3.3a9.5 9.5 0 0 0 0 8.22l3.24-2.53Z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 6.39c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.49 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.39l3.24 2.53C7.31 8.11 9.46 6.39 12 6.39Z"
-                />
-              </svg>
+          <button
+            className="wireframe-button wireframe-button-primary"
+            type="submit"
+            disabled={
+              isSubmitting || isGoogleSigningIn || isWaitingForApproval
+            }
+          >
+            {isSubmitting ? "Registering..." : "Register"}
+          </button>
+          <button
+            className="wireframe-button google-btn"
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={
+              isSubmitting || isGoogleSigningIn || isWaitingForApproval
+            }
+          >
+            <GoogleLogo />
+            <span>
               {isGoogleSigningIn
                 ? "Connecting to Google..."
                 : "Continue with Google"}
-            </button>
-          </div>
+            </span>
+          </button>
+
+          {status && (
+            <div
+              className="form-alert"
+              data-kind={status.kind}
+              role={status.kind === "error" ? "alert" : "status"}
+              aria-live={status.kind === "error" ? "assertive" : "polite"}
+            >
+              <strong>
+                {status.kind === "success"
+                  ? "Registration submitted. "
+                  : "Registration failed. "}
+              </strong>
+              {status.message}
+            </div>
+          )}
         </form>
 
-        {status && (
-          <div
-            className={`status-note submission-status submission-status-${status.kind}`}
-            role={status.kind === "error" ? "alert" : "status"}
-            aria-live={status.kind === "error" ? "assertive" : "polite"}
-          >
-            <strong>
-              {status.kind === "success"
-                ? "Registration submitted"
-                : "Registration failed"}
-            </strong>
-            <span>{status.message}</span>
-          </div>
-        )}
-
-        <p className="auth-footer">
-          Already have an account?{" "}
-          <Link href="/login">Sign in</Link>
+        <p className="auth-modal__footer">
+          Already registered?{" "}
+          <Link className="wireframe-link" href="/login">Sign In</Link>
         </p>
-      </section>
-    </main>
+    </AuthModal>
   );
 }

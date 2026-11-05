@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import AuthModal from "@/components/auth-modal";
 import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -163,24 +164,17 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <main className="auth-layout functional-auth">
-      <section className="auth-card" aria-labelledby="set-password-title">
-        <header className="auth-header">
-          <Link className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="set-password-title">Set your password</h1>
-          <p>Choose a new password to finish setting up your account.</p>
-        </header>
+    <AuthModal
+      titleId="set-password-title"
+      title="Set a new password"
+      intro="Choose a secure password for your account."
+    >
 
         {isReady ? (
-          <form className="form-stack" onSubmit={handleSubmit}>
+          <form className="wireframe-form" onSubmit={handleSubmit}>
             <div className="field">
-              <label htmlFor="new-password">
-                New password <span className="required" aria-hidden="true">*</span>
-              </label>
-              <div className="functional-password-input">
+              <label htmlFor="new-password">New password</label>
+              <div className="wireframe-input-action">
                 <input
                   autoComplete="new-password"
                   autoFocus
@@ -192,39 +186,59 @@ export default function SetPasswordPage() {
                   type={showPassword ? "text" : "password"}
                 />
                 <button
+                  aria-controls="new-password"
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="password-visibility"
+                  className="password-toggle"
                   onClick={() => setShowPassword((value) => !value)}
                   type="button"
                 >
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
-              <p className="form-help">Use at least 6 characters.</p>
             </div>
+
+            <fieldset className="wireframe-requirements">
+              <legend>Password requirements</legend>
+              <label>At least 6 characters</label>
+            </fieldset>
+
             <div className="field">
-              <label htmlFor="confirm-password">
-                Confirm password <span className="required" aria-hidden="true">*</span>
-              </label>
-              <input
-                autoComplete="new-password"
-                id="confirm-password"
-                minLength={6}
-                name="confirmation"
-                placeholder="Re-enter your new password"
-                required
-                type={showPassword ? "text" : "password"}
-              />
+              <label htmlFor="confirm-password">Confirm password</label>
+              <div className="wireframe-input-action">
+                <input
+                  autoComplete="new-password"
+                  id="confirm-password"
+                  minLength={6}
+                  name="confirmation"
+                  placeholder="Re-enter your password"
+                  required
+                  type={showPassword ? "text" : "password"}
+                />
+                <button
+                  aria-controls="confirm-password"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  className="password-toggle"
+                  onClick={() => setShowPassword((value) => !value)}
+                  type="button"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </div>
-            <div className="form-actions">
-              <button
-                className="button button-primary"
-                disabled={isSaving}
-                type="submit"
-              >
-                {isSaving ? "Saving password..." : "Save password"}
-              </button>
-            </div>
+
+            <button
+              className="wireframe-button wireframe-button-primary"
+              disabled={isSaving}
+              type="submit"
+            >
+              {isSaving ? "Saving password..." : "Save new password"}
+            </button>
+
+            {status && (
+              <div aria-live="polite" className="form-alert" data-kind="error" role="alert">
+                {status}
+              </div>
+            )}
           </form>
         ) : (
           <p aria-live="polite" className="form-help">
@@ -232,16 +246,9 @@ export default function SetPasswordPage() {
           </p>
         )}
 
-        {status && isReady && (
-          <div aria-live="polite" className="status-note functional-auth-status" role="alert">
-            <span>{status}</span>
-          </div>
-        )}
-
-        <p className="auth-footer">
-          <Link href="/login">Back to Sign In</Link>
+        <p className="auth-modal__footer">
+          <Link className="wireframe-link" href="/login">Back to Sign In</Link>
         </p>
-      </section>
-    </main>
+    </AuthModal>
   );
 }

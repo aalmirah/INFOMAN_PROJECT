@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 function getSafeNextPath(value: string | null): string {
   switch (value) {
     case "/set-password":
+    case "/reset-password":
     case "/session":
     case "/register?oauth=google":
       return value;
@@ -18,17 +19,19 @@ export async function GET(request: NextRequest) {
   const tokenHash = url.searchParams.get("token_hash");
   const tokenType = url.searchParams.get("type");
   const nextPath = getSafeNextPath(url.searchParams.get("next"));
+  const isRecoveryPath =
+    nextPath === "/set-password" || nextPath === "/reset-password";
 
   if (
     !code &&
     !(
-      nextPath === "/set-password" &&
+      isRecoveryPath &&
       tokenHash &&
       tokenType === "recovery"
     )
   ) {
     const errorUrl = new URL(
-      nextPath === "/set-password"
+      isRecoveryPath
         ? "/login?error=recovery"
         : "/login?error=callback",
       request.url,
@@ -60,7 +63,7 @@ export async function GET(request: NextRequest) {
   if (code) {
     ({ error } = await supabase.auth.exchangeCodeForSession(code));
   } else if (
-    nextPath === "/set-password" &&
+    isRecoveryPath &&
     tokenHash &&
     tokenType === "recovery"
   ) {
@@ -75,7 +78,7 @@ export async function GET(request: NextRequest) {
   }
   if (error) {
     const errorUrl = new URL(
-      nextPath === "/set-password"
+      isRecoveryPath
         ? "/login?error=recovery"
         : "/login?error=callback",
       request.url,

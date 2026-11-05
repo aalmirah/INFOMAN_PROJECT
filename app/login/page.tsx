@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import AuthModal from "@/components/auth-modal";
+import GoogleLogo from "@/components/google-logo";
 import { getAuthProfile } from "@/lib/auth/profile";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -50,8 +52,11 @@ export default function LoginPage() {
     };
 
     let active = true;
-    const passwordUpdated =
-      new URLSearchParams(window.location.search).get("password") === "updated";
+    const passwordParam = new URLSearchParams(window.location.search).get(
+      "password",
+    );
+    const passwordUpdated = passwordParam === "updated";
+    const passwordReset = passwordParam === "reset";
     void getSupabaseClient()
       .auth.getUser()
       .then(async ({ data: { user }, error: authError }) => {
@@ -60,7 +65,12 @@ export default function LoginPage() {
           setStatus({ kind: "error", message: messages[error] });
         }
         if (authError || !user) {
-          if (passwordUpdated) {
+          if (passwordReset) {
+            setStatus({
+              kind: "success",
+              message: "Your password was reset. Sign in with your new password.",
+            });
+          } else if (passwordUpdated) {
             setStatus({
               kind: "success",
               message: "Your password was set. Sign in with your new password.",
@@ -236,91 +246,88 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-layout functional-auth">
-      <section className="auth-card" aria-labelledby="login-title">
-        <header className="auth-header">
-          <Link className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="login-title">Sign in to your account</h1>
-          <p>Enter your credentials to access HOPE Inc. ERP.</p>
-        </header>
+    <AuthModal
+      titleId="login-title"
+      title="Sign in"
+      intro="Welcome back. Enter your account info."
+    >
+      <form className="wireframe-form" onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="login-email">Email</label>
+          <input
+            autoComplete="email"
+            autoFocus
+            id="login-email"
+            name="email"
+            placeholder="name@example.com"
+            required
+            type="email"
+          />
+        </div>
 
-        <form className="form-stack" onSubmit={handleSubmit}>
-          <div className="field">
-            <label htmlFor="login-email">
-              Email address <span className="required" aria-hidden="true">*</span>
-            </label>
+        <div className="field">
+          <label htmlFor="login-password">Password</label>
+          <div className="wireframe-input-action">
             <input
-              autoComplete="email"
-              autoFocus
-              id="login-email"
-              name="email"
-              placeholder="you@company.com"
+              autoComplete="current-password"
+              id="login-password"
+              name="password"
+              placeholder="Enter your password"
               required
-              type="email"
+              type={showPassword ? "text" : "password"}
             />
-          </div>
-
-          <div className="field">
-            <label htmlFor="login-password">
-              Password <span className="required" aria-hidden="true">*</span>
-            </label>
-            <div className="functional-password-input">
-              <input
-                autoComplete="current-password"
-                id="login-password"
-                name="password"
-                placeholder="Enter your password"
-                required
-                type={showPassword ? "text" : "password"}
-              />
-              <button
-                aria-label={showPassword ? "Hide password" : "Show password"}
-                className="password-visibility"
-                onClick={() => setShowPassword((value) => !value)}
-                type="button"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
-
-          <div className="form-actions">
             <button
-              className="button button-primary"
-              disabled={isSubmitting || isGoogleSigningIn}
-              type="submit"
-            >
-              {isSubmitting ? "Signing in..." : "Sign In"}
-            </button>
-            <div aria-hidden="true" className="form-divider">OR</div>
-            <button
-              className="sso-button"
-              disabled={isSubmitting || isGoogleSigningIn}
-              onClick={handleGoogleSignIn}
+              aria-controls="login-password"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
               type="button"
             >
-              Continue with Google
+              {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-        </form>
+        </div>
+
+        <Link
+          className="wireframe-link field-help"
+          href="/forgot-password"
+        >
+          Forgot password?
+        </Link>
+
+        <button
+          className="wireframe-button wireframe-button-primary"
+          disabled={isSubmitting || isGoogleSigningIn}
+          type="submit"
+        >
+          {isSubmitting ? "Signing in..." : "Sign In"}
+        </button>
+        <button
+          className="wireframe-button google-btn"
+          disabled={isSubmitting || isGoogleSigningIn}
+          onClick={handleGoogleSignIn}
+          type="button"
+        >
+          <GoogleLogo />
+          <span>Continue with Google</span>
+        </button>
 
         {status && (
           <div
             aria-live="polite"
-            className={`status-note functional-auth-status functional-auth-status-${status.kind}`}
+            className="form-alert"
+            data-kind={status.kind}
             role={status.kind === "error" ? "alert" : "status"}
           >
-            <span>{status.message}</span>
+            {status.message}
           </div>
         )}
+      </form>
 
-        <p className="auth-footer">
-          Don&apos;t have an account? <Link href="/register">Register</Link>
-        </p>
-      </section>
-    </main>
+      <p className="auth-modal__footer">
+        New to Hope, Inc.?{" "}
+        <Link className="wireframe-link" href="/register">Register</Link>
+      </p>
+    </AuthModal>
   );
 }
