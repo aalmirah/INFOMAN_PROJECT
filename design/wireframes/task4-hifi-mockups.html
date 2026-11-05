@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HOPE Inc. ERP static high-fidelity mockup showcase and developer handoff sheet.">
+    <title>HOPE, INC. | Task 4 Static Handoff Showcase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+      :root {
+        --handoff-primary: #3D7584;
+        --handoff-secondary: #89B8BF;
+        --handoff-accent: #FCAFC1;
+        --handoff-ink: #000000;
+        --handoff-muted: #333333;
+        --handoff-surface: #FFFFFF;
+        --handoff-border: #D7E5E7;
+        --handoff-bg: #F3F8F8;
+        --handoff-shadow: 0 4px 16px rgba(61, 117, 132, .14);
+        --handoff-radius: 8px;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; color: var(--handoff-muted); background: var(--handoff-bg); font: 400 14px/1.5 Inter, "Segoe UI", Arial, sans-serif; }
+      a { color: var(--handoff-primary); }
+      .handoff-shell { width: min(1440px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 64px; }
+      .handoff-header { padding: 24px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .eyebrow { margin: 0 0 6px; color: var(--handoff-primary); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      h1, h2, h3 { color: var(--handoff-ink); }
+      h1 { margin: 0 0 8px; color: var(--handoff-primary); font-size: clamp(24px, 4vw, 38px); }
+      h2 { margin: 0 0 8px; font-size: 24px; }
+      h3 { margin: 0; font-size: 17px; }
+      .handoff-header p:last-child { max-width: 760px; margin: 0; }
+      .top-nav { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 32px; padding: 10px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: rgba(255,255,255,.96); box-shadow: var(--handoff-shadow); }
+      .top-nav a { padding: 8px 11px; border-radius: 6px; text-decoration: none; font-weight: 700; }
+      .top-nav a:hover, .top-nav a:focus-visible { background: var(--handoff-secondary); color: var(--handoff-ink); outline: none; }
+      .handoff-section { scroll-margin-top: 82px; margin-top: 32px; padding: 22px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .section-intro { margin: 0 0 18px; color: #527078; }
+      .device-stack { display: grid; gap: 24px; }
+      .role-section { margin-top: 8px; }
+      .role-section .device-window { overflow: visible; }
+      .role-section .role-grid { grid-template-columns: 1fr; gap: 20px; }
+      .role-section .role-card { width: 100%; }
+      .role-section .role-card:first-child .role-card__body { display: grid; grid-template-columns: minmax(220px, 260px) minmax(0, 1fr); gap: 10px 16px; align-items: start; }
+      .role-section .role-card:first-child .role-card__body > :not(.mini-sidebar) { grid-column: 2; }
+      .role-section .role-card:first-child .mini-sidebar { grid-column: 1; grid-row: 1 / span 4; margin-top: 0; height: 100%; }
+      #user-management .table-grid,
+      #right-dialog .dialog-grid { grid-template-columns: 1fr; gap: 24px; }
+      #user-management > .table-grid,
+      #right-dialog > .dialog-grid { display: none; }
+      #user-management .table-card,
+      #right-dialog .dialog-card { width: 100%; }
+      #user-management .table-card__body,
+      #right-dialog .dialog-body { padding: 20px; }
+      #user-management .table-wrap { overflow: visible; }
+      #user-management table { table-layout: fixed; }
+      #user-management th,
+      #user-management td { overflow-wrap: anywhere; }
+      #right-dialog .dialog-surface { max-width: 760px; margin: 0 auto; }
+      .legacy-role-summary,
+      .legacy-management-summary,
+      .legacy-dialog-summary { display: none; }
+      #admin-view,
+      #user-view { display: none; }
+      .corrected-role-preview,
+      .corrected-management-preview,
+      .corrected-dialog-preview { display: grid; gap: 24px; }
+      .preview-frame { overflow: hidden; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .preview-frame__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--handoff-primary); color: var(--handoff-surface); }
+      .preview-frame__header h3 { color: var(--handoff-surface); font-size: 16px; }
+      .preview-frame__body { padding: 16px; background: #F9FCFC; }
+      .preview-viewport { width: min(var(--preview-width), 100%); margin: 0 auto; border: 1px solid var(--handoff-border); border-radius: 6px; background: var(--handoff-surface); }
+      .preview-viewport iframe { display: block; width: 100%; height: 720px; border: 0; }
+      .preview-note { margin: 8px 0 0; color: #527078; font-size: 12px; text-align: center; }
+      .preview-management-card,
+      .preview-dialog-card { padding: 18px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .preview-management-card h3,
+      .preview-dialog-card h3 { margin-bottom: 10px; color: var(--handoff-primary); }
+      .preview-management-card .viewport-tags,
+      .preview-dialog-card .viewport-tags { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 14px; }
+      .preview-management-card .viewport-tags li,
+      .preview-dialog-card .viewport-tags li { min-height: 48px; display: grid; place-items: center; text-align: center; }
+      .responsive-management-preview,
+      .responsive-dialog-preview { display: grid; gap: 24px; }
+      .responsive-management-preview,
+      .responsive-dialog-preview { display: none; }
+      .source-preview-stack { display: grid; gap: 24px; }
+      .source-preview-frame { overflow: hidden; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .source-preview-frame__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--handoff-primary); color: var(--handoff-surface); }
+      .source-preview-frame__header h4 { margin: 0; color: var(--handoff-surface); font-size: 15px; }
+      .source-preview-frame__body { padding: 16px; background: #F9FCFC; }
+      .source-preview-viewport { width: min(var(--preview-width), 100%); margin: 0 auto; border: 1px solid var(--handoff-border); border-radius: 6px; background: var(--handoff-surface); }
+      .source-preview-viewport iframe { display: block; width: 100%; height: 760px; border: 0; }
+      .source-preview-viewport--dialog iframe { height: 760px; }
+      .management-role-preview { display: grid; gap: 16px; }
+      .management-role-preview > h3 { margin: 0; color: var(--handoff-primary); }
+      .management-device-frame,
+      .dialog-device-frame { overflow: hidden; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .management-device-frame__header,
+      .dialog-device-frame__header { display: flex; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--handoff-primary); color: var(--handoff-surface); }
+      .management-device-frame__header h4,
+      .dialog-device-frame__header h4 { margin: 0; color: var(--handoff-surface); font-size: 15px; }
+      .management-device-frame__body,
+      .dialog-device-frame__body { padding: 16px; }
+      .management-device-frame table { width: 100%; }
+      .management-device-frame .table-wrap { overflow: visible; }
+      .management-mobile-list { display: none; gap: 10px; }
+      .management-device-frame--mobile .management-mobile-list { display: grid; }
+      .management-account-card { padding: 12px; border: 1px solid var(--handoff-border); border-radius: 6px; background: #F9FCFC; }
+      .management-account-card strong { display: block; color: var(--handoff-primary); }
+      .management-account-card span { display: block; margin-top: 2px; font-size: 12px; }
+      .management-account-card .action-buttons { margin-top: 10px; }
+      .dialog-device-frame__body .dialog-surface { max-width: none; margin: 0; }
+      .dialog-device-frame__body .permission-list { margin: 0; }
+      .corrected-management-preview { display: none; }
+      .device-group { overflow: hidden; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: #F9FCFC; }
+      .device-group__header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--handoff-border); background: var(--handoff-primary); color: var(--handoff-surface); }
+      .device-group__header h3 { color: var(--handoff-surface); }
+      .device-label { color: var(--handoff-surface); font-size: 12px; font-weight: 700; }
+      .device-window { overflow-x: auto; padding: 18px; }
+      .device-frame { width: var(--device-width); min-width: var(--device-width); margin: 0 auto; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .device-frame iframe { display: block; width: 100%; height: 680px; border: 0; background: var(--handoff-surface); }
+      .device-frame--landing iframe { height: 700px; }
+      .device-frame--auth iframe { height: 640px; }
+      .auth-preview-grid { display: grid; gap: 16px; padding: 18px; }
+      .auth-preview-grid .device-frame { width: 100%; min-width: 0; margin: 0; }
+      .device-note { margin: 10px 0 0; color: #527078; font-size: 12px; text-align: center; }
+      .role-grid, .table-grid, .dialog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .role-card, .table-card, .dialog-card, .note-card { min-width: 0; overflow: hidden; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .role-card__header, .table-card__header, .dialog-card__header { padding: 12px 14px; background: var(--handoff-primary); color: var(--handoff-surface); }
+      .role-card__header h3, .table-card__header h3, .dialog-card__header h3 { color: var(--handoff-surface); }
+      .role-card__body, .table-card__body, .dialog-card__body { padding: 14px; }
+      .role-badge { display: inline-flex; margin-bottom: 10px; padding: 4px 8px; border-radius: 999px; background: var(--handoff-accent); color: var(--handoff-ink); font-size: 11px; font-weight: 800; }
+      .role-card__body h4 { margin: 0 0 5px; color: var(--handoff-primary); font-size: 18px; }
+      .role-card__body p { min-height: 66px; margin: 0 0 12px; }
+      .mini-sidebar { display: grid; gap: 5px; margin-top: 12px; padding: 12px; border-radius: 6px; background: var(--handoff-primary); color: var(--handoff-surface); }
+      .mini-nav { padding: 6px 8px; border-radius: 5px; font-size: 12px; }
+      .mini-nav.active { background: var(--handoff-secondary); color: var(--handoff-ink); }
+      .quick-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+      .quick-list li { padding: 8px; border: 1px solid var(--handoff-border); border-radius: 6px; background: var(--handoff-surface); font-size: 12px; font-weight: 700; }
+      .auth-state-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+      .auth-state { min-width: 0; padding: 14px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); background: var(--handoff-surface); box-shadow: var(--handoff-shadow); }
+      .auth-state h3 { margin-bottom: 8px; color: var(--handoff-primary); font-size: 15px; }
+      .auth-state__frame { margin-top: 8px; padding: 10px; border: 1px solid var(--handoff-border); border-radius: 6px; background: #F9FCFC; }
+      .auth-state__frame strong { display: block; color: var(--handoff-primary); font-size: 11px; }
+      .auth-state__frame span { display: block; margin-top: 4px; font-size: 11px; }
+      .viewport-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; padding: 0; list-style: none; }
+      .viewport-tags li { padding: 4px 7px; border: 1px solid var(--handoff-secondary); border-radius: 999px; color: var(--handoff-primary); font-size: 10px; font-weight: 800; }
+      .table-card { min-height: 285px; }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      th, td { padding: 8px 6px; border-bottom: 1px solid var(--handoff-border); text-align: left; white-space: nowrap; }
+      th { color: var(--handoff-primary); font-size: 10px; text-transform: uppercase; }
+      .action-buttons { display: flex; gap: 4px; }
+      .action-button { padding: 4px 6px; border: 1px solid var(--handoff-secondary); border-radius: 4px; background: var(--handoff-surface); color: var(--handoff-primary); font-size: 10px; font-weight: 700; }
+      .restricted { padding: 14px; border: 1px solid var(--handoff-accent); border-radius: 6px; background: #FFF4F6; }
+      .dialog-body { padding: 16px; background: #F9FCFC; }
+      .dialog-surface { padding: 16px; border: 1px solid var(--handoff-border); border-radius: var(--handoff-radius); box-shadow: var(--handoff-shadow); }
+      .permission-list { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+      .permission-list li { display: flex; justify-content: space-between; gap: 10px; padding: 8px; border-bottom: 1px solid var(--handoff-border); font-size: 12px; }
+      .toggle { color: var(--handoff-primary); font-weight: 800; }
+      .notes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .note-card { padding: 18px; }
+      .note-card h3 { margin-bottom: 10px; color: var(--handoff-primary); }
+      pre { overflow-x: auto; margin: 0; padding: 14px; border-radius: 6px; background: #17343B; color: #E9FFFF; font: 12px/1.6 Consolas, monospace; }
+      .matrix { width: 100%; }
+      .matrix td, .matrix th { white-space: normal; }
+      @media (max-width: 900px) { .role-grid, .table-grid, .dialog-grid { grid-template-columns: 1fr; } .notes-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 640px) {
+        .role-section .role-card:first-child .role-card__body { display: block; }
+        .role-section .role-card:first-child .role-card__body > :not(.mini-sidebar) { margin-bottom: 12px; }
+        .role-section .role-card:first-child .mini-sidebar { height: auto; margin-top: 12px; }
+        #user-management .table-card__body,
+        #right-dialog .dialog-body { padding: 14px; }
+        .preview-management-card .viewport-tags,
+        .preview-dialog-card .viewport-tags { grid-template-columns: 1fr; }
+        .management-device-frame--mobile .management-table { display: none; }
+        .management-device-frame--mobile .management-mobile-list { display: grid; }
+        #user-management table { font-size: 11px; }
+        #user-management th,
+        #user-management td { padding: 7px 5px; }
+      }
+      @media (max-width: 640px) { .handoff-shell { width: min(100% - 16px, 375px); padding-top: 12px; } .handoff-header, .handoff-section { padding: 16px; } .top-nav { position: static; } .device-window { padding: 10px; } }
+    </style>
+  </head>
+  <body>
+    <main class="handoff-shell">
+      <header class="handoff-header" id="top">
+        <p class="eyebrow">Task 4 · Static high-fidelity handoff</p>
+        <h1>HOPE, INC. ERP - Task 4: Hi-fi mockups and developer handoff</h1>
+        <p class="handoff-summary">Approved task scope: static, multi-viewport high-fidelity references for Hope, authentication, role-segregated dashboards, user permissions, right dialogs, and developer implementation rules. All states are documented without dynamic tab switching.</p>
+      </header>
+
+      <nav class="top-nav" aria-label="Mockup sections">
+        <a href="#hope">Hope</a>
+        <a href="#login">Login</a>
+        <a href="#register">Register</a>
+        <a href="#main-page">Main page</a>
+        <a href="#user-management">User management</a>
+        <a href="#right-dialog">Right Dialog</a>
+        <a href="#handoff">Handoff</a>
+      </nav>
+
+      <section class="handoff-section" id="hope">
+        <h2>Hope · Landing page</h2>
+        <p class="section-intro">Approved landing page branding, hero visual, feature overview, and primary Login/Register CTAs.</p>
+        <div class="device-stack">
+          <div class="device-group"><div class="device-group__header"><h3>Desktop · 1440px</h3><span class="device-label">Landing page</span></div><div class="device-window"><div class="device-frame device-frame--landing" style="--device-width:1440px"><iframe src="index.html" title="Landing desktop preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Tablet · 768px</h3><span class="device-label">Landing page</span></div><div class="device-window"><div class="device-frame device-frame--landing" style="--device-width:768px"><iframe src="index.html" title="Landing tablet preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Mobile · 375px</h3><span class="device-label">Landing page</span></div><div class="device-window"><div class="device-frame device-frame--landing" style="--device-width:375px"><iframe src="index.html" title="Landing mobile preview"></iframe></div></div></div>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="login">
+        <h2>1. Login</h2>
+        <p class="section-intro">Approved sign-in styling shown at every supported handoff viewport.</p>
+        <div class="device-stack">
+          <div class="device-group"><div class="device-group__header"><h3>Desktop · 1440px</h3><span class="device-label">Static frame</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:1440px"><iframe src="login.html" title="Login desktop preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Tablet · 768px</h3><span class="device-label">Static frame</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:768px"><iframe src="login.html" title="Login tablet preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Mobile · 375px</h3><span class="device-label">Static frame</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:375px"><iframe src="login.html" title="Login mobile preview"></iframe></div></div></div>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="register">
+        <h2>2. Register</h2>
+        <p class="section-intro">Request Access, Forgot Password, and Reset Password remain aligned to the approved teal form system.</p>
+        <div class="device-stack">
+          <div class="device-group"><div class="device-group__header"><h3>Desktop · 1440px</h3><span class="device-label">Register / Request Access</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:1440px"><iframe src="register.html" title="Register desktop preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Tablet · 768px</h3><span class="device-label">Register / Request Access</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:768px"><iframe src="register.html" title="Register tablet preview"></iframe></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Mobile · 375px</h3><span class="device-label">Register / Request Access</span></div><div class="device-window"><div class="device-frame device-frame--auth" style="--device-width:375px"><iframe src="register.html" title="Register mobile preview"></iframe></div></div></div>
+        </div>
+        <div class="device-stack" style="margin-top:24px">
+          <div class="device-group"><div class="device-group__header"><h3>Forgot Password · Desktop / Tablet / Mobile</h3><span class="device-label">Recovery flow</span></div><div class="auth-preview-grid"><div class="device-frame device-frame--auth"><iframe src="reset-password.html" title="Forgot password desktop preview"></iframe><p class="device-note">Desktop · 1440px</p></div><div class="device-frame device-frame--auth"><iframe src="reset-password.html" title="Forgot password tablet preview"></iframe><p class="device-note">Tablet · 768px</p></div><div class="device-frame device-frame--auth"><iframe src="reset-password.html" title="Forgot password mobile preview"></iframe><p class="device-note">Mobile · 375px</p></div></div></div>
+          <div class="device-group"><div class="device-group__header"><h3>Reset Password · Desktop / Tablet / Mobile</h3><span class="device-label">Set new password</span></div><div class="auth-preview-grid"><div class="device-frame device-frame--auth"><iframe src="set-password.html" title="Reset password desktop preview"></iframe><p class="device-note">Desktop · 1440px</p></div><div class="device-frame device-frame--auth"><iframe src="set-password.html" title="Reset password tablet preview"></iframe><p class="device-note">Tablet · 768px</p></div><div class="device-frame device-frame--auth"><iframe src="set-password.html" title="Reset password mobile preview"></iframe><p class="device-note">Mobile · 375px</p></div></div></div>
+        </div>
+        <div class="device-group" style="margin-top:24px">
+          <div class="device-group__header"><h3>Authentication state coverage</h3><span class="device-label">Static state references</span></div>
+          <div class="device-window">
+            <div class="auth-state-grid">
+              <article class="auth-state"><h3>Default</h3><div class="auth-state__frame"><strong>Desktop · 1440px</strong><span>Empty sign-in form and primary CTA.</span></div><div class="auth-state__frame"><strong>Tablet · 768px</strong><span>Centered form with responsive spacing.</span></div><div class="auth-state__frame"><strong>Mobile · 375px</strong><span>Stacked fields and full-width CTA.</span></div></article>
+              <article class="auth-state"><h3>Field focus</h3><div class="auth-state__frame"><strong>Desktop · 1440px</strong><span>Teal focus ring on active input.</span></div><div class="auth-state__frame"><strong>Tablet · 768px</strong><span>Focus state remains visible.</span></div><div class="auth-state__frame"><strong>Mobile · 375px</strong><span>Keyboard-safe vertical layout.</span></div></article>
+              <article class="auth-state"><h3>Validation errors</h3><div class="auth-state__frame"><strong>Desktop · 1440px</strong><span>Required-field message under input.</span></div><div class="auth-state__frame"><strong>Tablet · 768px</strong><span>Error copy preserves alignment.</span></div><div class="auth-state__frame"><strong>Mobile · 375px</strong><span>Errors wrap without overflow.</span></div></article>
+              <article class="auth-state"><h3>Invalid credentials</h3><div class="auth-state__frame"><strong>Desktop · 1440px</strong><span>“Invalid credentials” toast.</span></div><div class="auth-state__frame"><strong>Tablet · 768px</strong><span>Toast stays within viewport.</span></div><div class="auth-state__frame"><strong>Mobile · 375px</strong><span>Toast stacks above the form.</span></div></article>
+              <article class="auth-state"><h3>Account inactive</h3><div class="auth-state__frame"><strong>Desktop · 1440px</strong><span>“Account Inactive - pending approval”.</span></div><div class="auth-state__frame"><strong>Tablet · 768px</strong><span>Pending state remains readable.</span></div><div class="auth-state__frame"><strong>Mobile · 375px</strong><span>Message wraps within the card.</span></div></article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="main-page">
+        <h2>3. Main page - Home</h2>
+        <p class="section-intro">Each role is rendered as its own static dashboard set. Every set includes Desktop, Tablet, and Mobile frames.</p>
+        <div class="device-stack">
+          <section class="device-group role-section legacy-role-summary" id="superadmin-view"><div class="device-group__header"><h3>SuperAdmin View</h3></div></section>
+          <section class="device-group role-section" id="admin-view"><div class="device-group__header"><h3>Admin View · 1440px / 768px / 375px</h3><span class="device-label">Restricted managerial access</span></div><div class="device-window"><div class="role-grid"><div class="role-card"><div class="role-card__header"><h3>Desktop · 1440px</h3></div><div class="role-card__body"><span class="role-badge">ADMIN</span><h4>Welcome, Admin!</h4><p>You can manage most modules and user rights (except Superadmin accounts).</p><ul class="quick-list"><li>👥 View Customers</li><li>📦 Manage Products</li><li>💼 Human Resources</li><li>📊 Sales Pipeline</li><li>🔑 Manage Users</li></ul><div class="mini-sidebar"><div class="mini-nav active">📊 Dashboard</div><div class="mini-nav">MODULES · Customers · Products · HR · Sales · Reports</div><div class="mini-nav">ADMINISTRATION · User Management</div></div></div></div><div class="role-card"><div class="role-card__header"><h3>Tablet · 768px</h3></div><div class="role-card__body"><span class="role-badge">ADMIN</span><h4>Welcome, Admin!</h4><p>Five responsive Quick Actions. System Settings remains hidden.</p><ul class="quick-list"><li>👥 Customers</li><li>📦 Products</li><li>💼 HR</li><li>📊 Sales</li><li>🔑 Users</li></ul></div></div><div class="role-card"><div class="role-card__header"><h3>Mobile · 375px</h3></div><div class="role-card__body"><span class="role-badge">ADMIN</span><h4>Welcome, Admin!</h4><p>Single-column operational cards and restricted Administration navigation.</p><ul class="quick-list"><li>👥 Customers</li><li>📦 Products</li><li>💼 HR</li><li>📊 Sales</li><li>🔑 Users</li></ul></div></div></div></div></section>
+          <section class="device-group role-section" id="user-view"><div class="device-group__header"><h3>Regular User View · 1440px / 768px / 375px</h3><span class="device-label">Operational access</span></div><div class="device-window"><div class="role-grid"><div class="role-card"><div class="role-card__header"><h3>Desktop · 1440px</h3></div><div class="role-card__body"><span class="role-badge">USER</span><h4>Welcome, User!</h4><p>You have access to the core modules assigned to you. Contact an Admin for elevated permissions.</p><ul class="quick-list"><li>👥 View Customers</li><li>📦 Manage Products</li><li>📊 Sales Pipeline</li></ul><div class="mini-sidebar"><div class="mini-nav active">📊 Dashboard</div><div class="mini-nav">MODULES · Customers · Products · Sales</div></div></div></div><div class="role-card"><div class="role-card__header"><h3>Tablet · 768px</h3></div><div class="role-card__body"><span class="role-badge">USER</span><h4>Welcome, User!</h4><p>Operational modules only. Administration is not rendered.</p><ul class="quick-list"><li>👥 Customers</li><li>📦 Products</li><li>📊 Sales</li></ul></div></div><div class="role-card"><div class="role-card__header"><h3>Mobile · 375px</h3></div><div class="role-card__body"><span class="role-badge">USER</span><h4>Welcome, User!</h4><p>Compact operational dashboard with no Administration section.</p><ul class="quick-list"><li>👥 Customers</li><li>📦 Products</li><li>📊 Sales</li></ul></div></div></div></div></section>
+        </div>
+        <div class="corrected-role-preview">
+          <section class="device-group" id="superadmin-preview"><div class="device-group__header"><h3>SuperAdmin View · Full dashboard shell</h3><span class="device-label">All modules and administration</span></div><div class="device-stack">
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Desktop · 1440px</h3><span>Full access</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:1440px"><iframe src="dashboard.html" title="SuperAdmin desktop dashboard preview"></iframe></div><p class="preview-note">Full sidebar, four metrics, six Quick Actions, and full User Management access.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Tablet · 768px</h3><span>Responsive layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:768px"><iframe src="dashboard.html" title="SuperAdmin tablet dashboard preview"></iframe></div><p class="preview-note">Two-column metrics and Quick Actions with organized sidebar navigation.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Mobile · 375px</h3><span>Stacked layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:375px"><iframe src="dashboard.html" title="SuperAdmin mobile dashboard preview"></iframe></div><p class="preview-note">Stacked cards, readable controls, and no horizontal page overflow.</p></div></article>
+          </div></section>
+          <section class="device-group" id="admin-preview"><div class="device-group__header"><h3>Admin View · Restricted dashboard shell</h3><span class="device-label">No System Settings</span></div><div class="device-stack">
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Desktop · 1440px</h3><span>Restricted access</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:1440px"><iframe src="admin.html" title="Admin desktop dashboard preview"></iframe></div><p class="preview-note">Five Quick Actions and User Management restricted to Admin rules.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Tablet · 768px</h3><span>Responsive layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:768px"><iframe src="admin.html" title="Admin tablet dashboard preview"></iframe></div><p class="preview-note">Two-column dashboard cards with organized restricted navigation.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Mobile · 375px</h3><span>Stacked layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:375px"><iframe src="admin.html" title="Admin mobile dashboard preview"></iframe></div><p class="preview-note">Stacked actions and readable Admin controls without horizontal overflow.</p></div></article>
+          </div></section>
+          <section class="device-group" id="user-preview"><div class="device-group__header"><h3>Regular User View · Operational dashboard shell</h3><span class="device-label">Administration hidden</span></div><div class="device-stack">
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Desktop · 1440px</h3><span>Operational access</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:1440px"><iframe src="user.html" title="Regular User desktop dashboard preview"></iframe></div><p class="preview-note">Operational modules only with no Administration navigation.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Tablet · 768px</h3><span>Responsive layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:768px"><iframe src="user.html" title="Regular User tablet dashboard preview"></iframe></div><p class="preview-note">Two-column metrics and compact operational navigation.</p></div></article>
+            <article class="preview-frame"><div class="preview-frame__header"><h3>Mobile · 375px</h3><span>Stacked layout</span></div><div class="preview-frame__body"><div class="preview-viewport" style="--preview-width:375px"><iframe src="user.html" title="Regular User mobile dashboard preview"></iframe></div><p class="preview-note">Simple stacked operational cards with no horizontal scrolling.</p></div></article>
+          </div></section>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="user-management">
+        <h2>4. User Management list</h2>
+        <p class="section-intro">Static comparison of role-aware user directory behavior at the handoff level.</p>
+        <div class="source-preview-stack">
+          <div class="management-role-preview"><h3>SuperAdmin · Actual User Management view</h3>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Desktop · 1440px</h4><span>dashboard.html · full directory</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:1440px"><iframe src="dashboard.html" data-preview-mode="management" title="SuperAdmin User Management desktop source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Tablet · 768px</h4><span>dashboard.html · responsive table</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:768px"><iframe src="dashboard.html" data-preview-mode="management" title="SuperAdmin User Management tablet source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Mobile · 375px</h4><span>dashboard.html · responsive layout</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:375px"><iframe src="dashboard.html" data-preview-mode="management" title="SuperAdmin User Management mobile source preview"></iframe></div></div></article>
+          </div>
+          <div class="management-role-preview"><h3>Admin · Actual restricted User Management view</h3>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Desktop · 1440px</h4><span>admin.html · restricted directory</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:1440px"><iframe src="admin.html" data-preview-mode="management" title="Admin User Management desktop source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Tablet · 768px</h4><span>admin.html · responsive table</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:768px"><iframe src="admin.html" data-preview-mode="management" title="Admin User Management tablet source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Mobile · 375px</h4><span>admin.html · responsive layout</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:375px"><iframe src="admin.html" data-preview-mode="management" title="Admin User Management mobile source preview"></iframe></div></div></article>
+          </div>
+          <div class="management-role-preview"><h3>Regular User · Actual restricted view</h3>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Desktop · 1440px</h4><span>user.html · no User Management access</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:1440px"><iframe src="user.html" data-preview-mode="management" title="Regular User Management desktop source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Tablet · 768px</h4><span>user.html · restricted dashboard</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:768px"><iframe src="user.html" data-preview-mode="management" title="Regular User Management tablet source preview"></iframe></div></div></article>
+            <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Mobile · 375px</h4><span>user.html · restricted dashboard</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport" style="--preview-width:375px"><iframe src="user.html" data-preview-mode="management" title="Regular User Management mobile source preview"></iframe></div></div></article>
+          </div>
+        </div>
+        <div class="responsive-management-preview">
+          <div class="management-role-preview">
+            <h3>SuperAdmin · Full directory</h3>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Desktop · 1440px</h4><span>Table layout</span></div><div class="management-device-frame__body"><div class="table-wrap"><table class="management-table"><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>SuperAdmin 1</td><td>SuperAdmin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>Admin 1</td><td>Admin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Tablet · 768px</h4><span>Readable table</span></div><div class="management-device-frame__body"><div class="table-wrap"><table class="management-table"><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>SuperAdmin 1</td><td>SuperAdmin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>Admin 1</td><td>Admin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+            <article class="management-device-frame management-device-frame--mobile"><div class="management-device-frame__header"><h4>Mobile · 375px</h4><span>Stacked cards</span></div><div class="management-device-frame__body"><div class="management-mobile-list"><div class="management-account-card"><strong>SuperAdmin 1</strong><span>SuperAdmin</span><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></div><div class="management-account-card"><strong>Admin 1</strong><span>Admin</span><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></div><div class="management-account-card"><strong>User 1</strong><span>User</span><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></div></div></div></article>
+          </div>
+          <div class="management-role-preview">
+            <h3>Admin · Restricted directory</h3>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Desktop · 1440px</h4><span>Table layout</span></div><div class="management-device-frame__body"><p><strong>SuperAdmin rows are hidden.</strong> Fellow Admin actions show an em-dash.</p><div class="table-wrap"><table class="management-table"><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>Admin 1</td><td>Admin</td><td>—</td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Tablet · 768px</h4><span>Readable table</span></div><div class="management-device-frame__body"><div class="table-wrap"><table class="management-table"><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>Admin 1</td><td>Admin</td><td>—</td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+            <article class="management-device-frame management-device-frame--mobile"><div class="management-device-frame__header"><h4>Mobile · 375px</h4><span>Stacked cards</span></div><div class="management-device-frame__body"><div class="management-mobile-list"><div class="management-account-card"><strong>Admin 1</strong><span>Admin · Actions: —</span></div><div class="management-account-card"><strong>User 1</strong><span>User</span><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></div></div></div></article>
+          </div>
+          <div class="management-role-preview">
+            <h3>Regular User · Restricted</h3>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Desktop · 1440px</h4><span>Restricted view</span></div><div class="management-device-frame__body"><div class="restricted"><strong>Access restricted.</strong><br>User Management is available to Admin and SuperAdmin roles only.</div></div></article>
+            <article class="management-device-frame"><div class="management-device-frame__header"><h4>Tablet · 768px</h4><span>Restricted view</span></div><div class="management-device-frame__body"><div class="restricted"><strong>Access restricted.</strong><br>User Management is available to Admin and SuperAdmin roles only.</div></div></article>
+            <article class="management-device-frame management-device-frame--mobile"><div class="management-device-frame__header"><h4>Mobile · 375px</h4><span>Restricted view</span></div><div class="management-device-frame__body"><div class="restricted"><strong>Access restricted.</strong><br>User Management is available to Admin and SuperAdmin roles only.</div></div></article>
+          </div>
+        </div>
+        <div class="corrected-management-preview">
+          <article class="preview-management-card"><h3>SuperAdmin · Full directory</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><p>All SuperAdmin, Admin, and User accounts are visible. Every row has Block, Rights, and Edit actions. Desktop and Tablet use a table; Mobile uses stacked account cards.</p><div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>SuperAdmin 1</td><td>SuperAdmin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>Admin 1</td><td>Admin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></article>
+          <article class="preview-management-card"><h3>Admin · Restricted directory</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><p><strong>Admin:</strong> Manage Users only. SuperAdmin rows are hidden. Fellow Admin rows show <strong>—</strong> in Actions; regular Users keep full actions.</p><div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>Admin 1</td><td>Admin</td><td>—</td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></article>
+          <article class="preview-management-card"><h3>Regular User · Restricted</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="restricted"><strong>Access restricted.</strong><br>User Management is available to Admin and SuperAdmin roles only.</div></article>
+        </div>
+        <div class="table-grid">
+          <article class="table-card"><div class="table-card__header"><h3>SuperAdmin · Full directory</h3></div><div class="table-card__body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>SuperAdmin 1</td><td>SuperAdmin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>Admin 1</td><td>Admin</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+          <article class="table-card"><div class="table-card__header"><h3>Admin · Restricted directory</h3></div><div class="table-card__body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><p><strong>Admin:</strong> Manage Users only. Other Admin accounts show "—" in Actions.</p><div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody><tr><td>Admin 1</td><td>Admin</td><td>—</td></tr><tr><td>User 1</td><td>User</td><td><div class="action-buttons"><button class="action-button">Block</button><button class="action-button">Rights</button><button class="action-button">Edit</button></div></td></tr></tbody></table></div></div></article>
+          <article class="table-card"><div class="table-card__header"><h3>Regular User · Restricted</h3></div><div class="table-card__body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="restricted"><strong>Access restricted.</strong><br>User Management is available to Admin and SuperAdmin roles only.</div></div></article>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="right-dialog">
+        <h2>5. Right Dialog - Rights/Add/Edit Dialog</h2>
+        <p class="section-intro">Static dialog references for permission management, adding accounts, and editing account details.</p>
+        <div class="source-preview-stack">
+          <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Desktop · 1440px</h4><span>Actual dashboard.html Rights Dialog · right-side overlay</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport source-preview-viewport--dialog" style="--preview-width:1440px"><iframe src="dashboard.html" data-preview-mode="rights" title="Rights Dialog desktop source preview"></iframe></div></div></article>
+          <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Tablet · 768px</h4><span>Actual dashboard.html Rights Dialog · centered overlay</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport source-preview-viewport--dialog" style="--preview-width:768px"><iframe src="dashboard.html" data-preview-mode="rights" title="Rights Dialog tablet source preview"></iframe></div></div></article>
+          <article class="source-preview-frame"><div class="source-preview-frame__header"><h4>Mobile · 375px</h4><span>Actual dashboard.html Rights Dialog · responsive overlay</span></div><div class="source-preview-frame__body"><div class="source-preview-viewport source-preview-viewport--dialog" style="--preview-width:375px"><iframe src="dashboard.html" data-preview-mode="rights" title="Rights Dialog mobile source preview"></iframe></div></div></article>
+        </div>
+        <div class="responsive-dialog-preview">
+          <div class="dialog-device-frame"><div class="dialog-device-frame__header"><h4>Desktop · 1440px</h4><span>Right-side dialog</span></div><div class="dialog-device-frame__body"><div class="dialog-surface"><h3>Rights for User 1</h3><p>Fine-grained permissions per module.</p><ul class="permission-list"><li><span>Customers · Read</span><span class="toggle">ON</span></li><li><span>Customers · Write</span><span class="toggle">OFF</span></li><li><span>Products · Delete</span><span class="toggle">OFF</span></li><li><span>Sales · Admin access</span><span class="toggle">OFF</span></li></ul></div></div></div>
+          <div class="dialog-device-frame"><div class="dialog-device-frame__header"><h4>Tablet · 768px</h4><span>Centered dialog</span></div><div class="dialog-device-frame__body"><div class="dialog-surface"><h3>Rights for User 1</h3><p>Permission toggles remain readable and touch-friendly.</p><ul class="permission-list"><li><span>Customers · Read</span><span class="toggle">ON</span></li><li><span>Customers · Write</span><span class="toggle">OFF</span></li><li><span>Products · Delete</span><span class="toggle">OFF</span></li><li><span>Sales · Admin access</span><span class="toggle">OFF</span></li></ul></div></div></div>
+          <div class="dialog-device-frame"><div class="dialog-device-frame__header"><h4>Mobile · 375px</h4><span>Full-width stacked dialog</span></div><div class="dialog-device-frame__body"><div class="dialog-surface"><h3>Rights for User 1</h3><p>Each permission is stacked for easy tapping.</p><ul class="permission-list"><li><span>Customers · Read</span><span class="toggle">ON</span></li><li><span>Customers · Write</span><span class="toggle">OFF</span></li><li><span>Products · Delete</span><span class="toggle">OFF</span></li><li><span>Sales · Admin access</span><span class="toggle">OFF</span></li></ul></div></div></div>
+        </div>
+        <div class="corrected-dialog-preview">
+          <article class="preview-dialog-card"><h3>Rights Dialog · Desktop / Tablet / Mobile</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Rights for User 1</h3><p>Configure fine-grained permissions per module.</p><ul class="permission-list"><li><span>Customers · Read</span><span class="toggle">ON</span></li><li><span>Customers · Write</span><span class="toggle">OFF</span></li><li><span>Products · Delete</span><span class="toggle">OFF</span></li><li><span>Sales · Admin access</span><span class="toggle">OFF</span></li></ul></div><p>Desktop: right-side dialog. Tablet: centered panel. Mobile: full-width slide-over with stacked permission rows.</p></article>
+          <article class="preview-dialog-card"><h3>Add User Dialog · Desktop / Tablet / Mobile</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Add User</h3><p>Invite a new account with a controlled role.</p><ul class="permission-list"><li><span>Full name</span><span>Input</span></li><li><span>Email</span><span>Input</span></li><li><span>Role</span><span>Admin / User</span></li><li><span>Status</span><span>Pending approval</span></li></ul></div><p>Forms stay readable, controls remain touch-friendly, and the panel never creates page-level horizontal scrolling.</p></article>
+          <article class="preview-dialog-card"><h3>Edit User Dialog · Desktop / Tablet / Mobile</h3><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Edit User</h3><p>Update account metadata without changing rights by accident.</p><ul class="permission-list"><li><span>Name and email</span><span>Editable</span></li><li><span>Role</span><span>Protected</span></li><li><span>Account status</span><span>Active / Blocked</span></li><li><span>Save state</span><span class="toggle">Confirmed toast</span></li></ul></div><p>Desktop and Tablet use a contained dialog; Mobile uses a stacked full-width form.</p></article>
+        </div>
+        <div class="dialog-grid">
+          <article class="dialog-card"><div class="dialog-card__header"><h3>Rights dialog</h3></div><div class="dialog-body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Rights for User 1</h3><p>Configure fine-grained permissions per module.</p><ul class="permission-list"><li><span>Customers · Read</span><span class="toggle">ON</span></li><li><span>Customers · Write</span><span class="toggle">OFF</span></li><li><span>Products · Delete</span><span class="toggle">OFF</span></li><li><span>Sales · Admin access</span><span class="toggle">OFF</span></li></ul></div></div></article>
+          <article class="dialog-card"><div class="dialog-card__header"><h3>Add user dialog</h3></div><div class="dialog-body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Add User</h3><p>Invite a new account with a controlled role.</p><ul class="permission-list"><li><span>Full name</span><span>Input</span></li><li><span>Email</span><span>Input</span></li><li><span>Role</span><span>Admin / User</span></li><li><span>Status</span><span>Pending approval</span></li></ul></div></div></article>
+          <article class="dialog-card"><div class="dialog-card__header"><h3>Edit user dialog</h3></div><div class="dialog-body"><ul class="viewport-tags"><li>Desktop · 1440px</li><li>Tablet · 768px</li><li>Mobile · 375px</li></ul><div class="dialog-surface"><h3>Edit User</h3><p>Update account metadata without changing rights by accident.</p><ul class="permission-list"><li><span>Name and email</span><span>Editable</span></li><li><span>Role</span><span>Protected</span></li><li><span>Account status</span><span>Active / Blocked</span></li><li><span>Save state</span><span class="toggle">Confirmed toast</span></li></ul></div></div></article>
+        </div>
+      </section>
+
+      <section class="handoff-section" id="handoff">
+        <h2>6. Developer Handoff</h2>
+        <p class="section-intro">Implementation notes for frontend engineering, accessibility, responsive behavior, and role-based access control.</p>
+        <div class="notes-grid">
+          <article class="note-card"><h3>CSS color tokens</h3><pre>:root {
+  --color-primary: #3D7584;
+  --color-secondary: #89B8BF;
+  --color-accent: #FCAFC1;
+  --color-ink: #000000;
+  --color-surface: #FFFFFF;
+}</pre></article>
+          <article class="note-card"><h3>Typography scale</h3><p><strong>Family:</strong> Inter, Segoe UI, sans-serif</p><p><strong>Page title:</strong> 24px / 1.5rem, weight 700</p><p><strong>Section title:</strong> 18px / 1.125rem, weight 600</p><p><strong>Body:</strong> 14px / .875rem, weight 400</p><p><strong>Caption:</strong> 12px / .75rem, weight 500</p></article>
+          <article class="note-card"><h3>Grid and elevation rules</h3><p>Use a 4px spacing grid: 4, 8, 12, 16, 24, and 32px. Cards use 8px radius, 1px borders, white surfaces, and soft teal-tinted shadows. Active navigation uses the secondary teal only on the selected item.</p></article>
+          <article class="note-card"><h3>Responsive breakpoints</h3><p><strong>Mobile:</strong> 375px single-column content.</p><p><strong>Tablet:</strong> 768px, two-column card grids where space allows.</p><p><strong>Desktop:</strong> 1440px fluid shell with a 1440px maximum content constraint.</p><p>Tables must scroll horizontally below tablet width.</p></article>
+          <article class="note-card" style="grid-column:1/-1"><h3>Role-based access control matrix</h3><div class="table-wrap"><table class="matrix"><thead><tr><th>Capability</th><th>SuperAdmin</th><th>Admin</th><th>Regular User</th></tr></thead><tbody><tr><td>Modules</td><td>All</td><td>Most</td><td>Assigned only</td></tr><tr><td>User Management</td><td>All accounts and actions</td><td>SuperAdmins hidden; Admin actions —; User actions active</td><td>Restricted</td></tr><tr><td>System Settings</td><td>Visible</td><td>Hidden</td><td>Hidden</td></tr><tr><td>Navigation state</td><td colspan="3">Links are flat by default; only the clicked/current item receives a solid active highlight.</td></tr></tbody></table></div></article>
+        </div>
+      </section>
+    </main>
+    <script>
+      document.querySelectorAll("iframe[data-preview-mode]").forEach((frame) => {
+        frame.addEventListener("load", () => {
+          const previewDocument = frame.contentDocument;
+          if (!previewDocument) return;
+          const manageUsers = previewDocument.querySelector("[data-dashboard-view-trigger='user-management']");
+          if (frame.dataset.previewMode === "management") {
+            manageUsers?.click();
+          }
+          if (frame.dataset.previewMode === "rights") {
+            manageUsers?.click();
+            previewDocument.querySelector("[data-open-rights]")?.click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
