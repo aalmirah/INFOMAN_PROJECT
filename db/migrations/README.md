@@ -64,13 +64,13 @@ Differences and resolutions:
   exactly T-001 + T-002 + T-003; the task did not separately specify T-004's
   status.
 
-## Audit objects excluded
+## Audit objects
 
-Both the source SQL and live schema export contain `audit_log`, `audit_user()`,
-`audit_stamp()`,
-`trg_set_stamp()`, `trg_audit_log()`, `trg_block_hard_delete()`,
-`trg_protect_audit_log()`, `trg_check_children()`, the audit-log protection
-triggers, and the `*_active` views. None are copied into these migrations.
-Audit logging and these related triggers/functions/views are reserved for
-Task 6. The `stamp` columns and defaults here are only fields/default values;
-they do not install audit triggers.
+The supplied source includes an audit implementation based on
+`app.username`/`session_user`, legacy `is_deleted` columns, and `ADD`/`EDIT`
+actions. The numbered migration chain uses `status`; the new
+`005_application_user_audit.sql` migration upgrades the audit log shape,
+attributes events from transaction-local `app.current_user`, and attaches
+audit/stamp triggers to every public table with both `status` and `stamp`.
+See [005_application_user_audit.md](005_application_user_audit.md) for the
+backend contract and test procedure.
