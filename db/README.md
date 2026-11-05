@@ -14,16 +14,21 @@ operating systems. No Docker is required.
 |-- db
 |   |-- README.md
 |   |-- migrations
+|   |   |-- 001_hope_base_tables.sql
+|   |   |-- 002_hope_sample_data.sql
+|   |   `-- README.md
 |   |-- scripts
 |   |   |-- migrate.js
-|   |   `-- seed.js
+|   |   |-- seed.js
+|   |   `-- verify.js
 |   `-- seeds
 `-- node_modules/                 (local only; ignored by Git)
 ```
 
-`db/migrations` and `db/seeds` intentionally contain no project schema or seed
-data yet. Do not copy the older SQL files from `database/` into this workflow
-without a reviewed migration plan.
+The base schema and guide-requested sample records are in separate migrations.
+See [migrations/README.md](migrations/README.md) for documented source
+limitations and schema assumptions. The optional `db/seeds` directory remains
+available for additional repeat-safe seed scripts.
 
 ## Team database approach
 
@@ -138,12 +143,13 @@ npm run db:migrate
 Expected on a new project database:
 
 ```text
-No migration files found.
+Applied 001_hope_base_tables.sql
+Applied 002_hope_sample_data.sql
+Migrations complete. Applied 2 migration(s).
 ```
 
-When migrations are added, output instead includes `Applied
-NNN_description.sql` for each pending file, followed by
-`Migrations complete. Applied N migration(s).`
+The runner records each filename and SHA-256 checksum. Do not edit an
+applied migration; add a new numbered migration for schema changes.
 
 ### 7. Load seed data
 
@@ -165,18 +171,21 @@ in its own transaction.
 
 ```text
 npm run db:status
+npm run db:verify
 ```
 
-Expected before migrations have been added:
+Expected status after the migrations are applied:
 
 ```text
-No migration files found.
+applied  001_hope_base_tables.sql
+applied  002_hope_sample_data.sql
+Status complete. 0 pending.
 ```
 
-To confirm the connected database version, connect using the same settings
-from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
-`16` or newer. Once migrations exist, status lists each as `applied` or
-`pending` and ends with the number pending.
+The verifier prints row counts, expected sales totals/current prices, and the
+orphan foreign-key count. Each check should report `PASS`. To confirm the
+connected database version, connect using the same settings from `.env` and
+run `SHOW server_version;` in `psql`. Expected: PostgreSQL `16` or newer.
 
 ## Available commands
 
@@ -186,6 +195,7 @@ from `.env` and run `SHOW server_version;` in `psql`. Expected: PostgreSQL
 | `npm run db:status` | Show applied and pending migrations |
 | `npm run db:seed` | Run repeat-safe SQL seed files in filename order |
 | `npm run db:reset` | Drop and recreate the configured development database after confirmation |
+| `npm run db:verify` | Verify sample data totals, prices, and foreign-key relationships |
 
 Each migration runs in its own transaction. The runner records the migration
 filename and SHA-256 checksum in `schema_migrations`; it refuses to continue
