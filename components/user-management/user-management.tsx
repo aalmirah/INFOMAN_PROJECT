@@ -26,6 +26,14 @@ type UserListResponse = {
   totalPages: number;
 };
 
+type PendingAccount = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  createdAt: string;
+};
+
 const EMPTY_LIST: UserListResponse = {
   users: [],
   actorRole: "admin",
@@ -118,6 +126,68 @@ export default function UserManagement() {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editName, setEditName] = useState({ firstName: "", lastName: "" });
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingAccount[]>([]);
+  const [pendingError, setPendingError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (list.actorRole !== "superadmin") return;
+    const controller = new AbortController();
+    fetch("/api/superadmin/pending", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const data: unknown = await response.json();
+        if (!response.ok) {
+          throw new Error(getErrorMessage(data, "Could not load pending accounts."));
+        }
+        const rows = (data as { pending?: unknown }).pending;
+        setPending(Array.isArray(rows) ? (rows as PendingAccount[]) : []);
+        setPendingError(null);
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) return;
+        setPendingError(
+          error instanceof Error ? error.message : "Could not load pending accounts.",
+        );
+      });
+    return () => controller.abort();
+  }, [list.actorRole, refreshKey]);
+
+  async function runAccountAction(
+    userId: string,
+    action: "approve" | "reject" | "promote" | "demote",
+    label: string,
+  ) {
+    if (
+      (action === "reject" || action === "demote") &&
+      !window.confirm(`Are you sure you want to ${action} ${label}?`)
+    ) {
+      return;
+    }
+    setBusyUserId(userId);
+    setNotice(null);
+    setLoadError(null);
+    setPendingError(null);
+    try {
+      const response = await fetch(`/api/superadmin/users/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data: unknown = await response.json();
+      if (!response.ok) {
+        throw new Error(getErrorMessage(data, "Could not complete this action."));
+      }
+      const message = (data as { message?: unknown }).message;
+      setNotice(typeof message === "string" ? message : "Done.");
+      setIsLoading(true);
+      setRefreshKey((key) => key + 1);
+    } catch (error) {
+      setLoadError(
+        error instanceof Error ? error.message : "Could not complete this action.",
+      );
+    } finally {
+      setBusyUserId(null);
+    }
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -354,6 +424,72 @@ export default function UserManagement() {
             {showAddForm ? "Cancel" : "Add User"}
           </button>
         </header>
+
+        {list.actorRole === "superadmin" && (
+          <section className="table-card um-pending" aria-labelledby="um-pending-title">
+            <div className="table-toolbar">
+              <div>
+                <h2 id="um-pending-title">Pending approvals</h2>
+                <p className="form-help">
+                  Approve to activate an account, or reject to remove it.
+                </p>
+              </div>
+            </div>
+            {pendingError && <p className="um-error-banner" role="alert">{pendingError}</p>}
+            {pending.length === 0 ? (
+              <p className="um-state-cell">No accounts are waiting for approval.</p>
+            ) : (
+              <div className="table-wrap">
+                <table className="user-management-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Registered</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pending.map((account) => {
+                      const label =
+                        [account.firstName, account.lastName].filter(Boolean).join(" ") ||
+                        account.email ||
+                        "this account";
+                      const isBusy = busyUserId === account.id;
+                      return (
+                        <tr key={account.id}>
+                          <td><strong>{label}</strong></td>
+                          <td>{account.email || "—"}</td>
+                          <td>{new Date(account.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <div className="um-actions">
+                              <button
+                                className="table-action um-action-button"
+                                disabled={isBusy}
+                                onClick={() => void runAccountAction(account.id, "approve", label)}
+                                type="button"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                className="table-action um-action-button danger-action"
+                                disabled={isBusy}
+                                onClick={() => void runAccountAction(account.id, "reject", label)}
+                                type="button"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
 
         <section className="table-card" aria-labelledby="um-directory-title">
           <div className="table-toolbar">
@@ -634,6 +770,24 @@ export default function UserManagement() {
                                       ? "Unblock"
                                       : "Block"}
                                   </button>
+                                  {list.actorRole === "superadmin" &&
+                                    user.accountStatus === "active" &&
+                                    (user.role === "user" || user.role === "admin") && (
+                                      <button
+                                        className="table-action um-action-button"
+                                        disabled={isBusy}
+                                        onClick={() =>
+                                          void runAccountAction(
+                                            user.id,
+                                            user.role === "user" ? "promote" : "demote",
+                                            displayName(user),
+                                          )
+                                        }
+                                        type="button"
+                                      >
+                                        {user.role === "user" ? "Make Admin" : "Make User"}
+                                      </button>
+                                    )}
                                   <button
                                     className="table-action um-action-button"
                                     disabled={isBusy}
