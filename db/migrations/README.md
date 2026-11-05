@@ -7,19 +7,21 @@ assertions.
 
 ## Source and assumptions
 
-The supplied source was compared with the tracked legacy SQL in
-[`database/migrations/migration_base.sql`](../../database/migrations/migration_base.sql)
-and a schema-only Supabase export (PostgreSQL 17.11). Both show the same core
-HOPE schema, legacy identifiers, and audit layer. The provided Supabase Schema
-Visualizer screenshot confirms the relationships
-among the ten requested core tables. The live schema export does not include
-row data. Neither source contains the requested walkthrough IDs `C-001`,
-`E-001`, `T-001`, `P-001`, `J-001`, or `D-001`. The guide/screens showing the
-requested sample records and exact stamp values were not provided. Therefore
-the requested sample names, descriptions, addresses, salaries, payments, and
-deterministic stamps are not verified copies of the guide. The project owner
-has accepted the documented sample dataset as the final Task 2 test fixture.
-The SQL audit section gives only an example stamp format
+The legacy source path cited during development
+(`database/migrations/migration_base.sql`) is not present in this repository
+or the current `main` branch, so it cannot be linked or independently reviewed
+from this PR. The migration files in this directory are the executable source
+of truth for the Task 2 schema and sample records. A schema-only Supabase
+export (PostgreSQL 17.11) and the provided Supabase Schema Visualizer
+screenshot were used to check the core schema and relationships among the ten
+requested tables. The export does not include row data. Neither source contains
+the requested walkthrough IDs `C-001`, `E-001`, `T-001`, `P-001`, `J-001`, or
+`D-001`. The guide/screens showing the requested sample records and exact stamp
+values were not provided. Therefore the requested sample names, descriptions,
+addresses, salaries, payments, and deterministic stamps are not verified
+copies of the guide. The project owner has accepted the documented sample
+dataset as the final Task 2 test fixture. The SQL audit section gives only an
+example stamp format
 (`EDIT user1 2026-10-12 11:18 AM`), not the guide's per-row stamp values.
 
 Differences and resolutions:
