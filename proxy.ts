@@ -123,7 +123,12 @@ export async function proxy(request: NextRequest) {
   if (profile.approvalStatus !== "approved") {
     if (pathname === "/login") return response;
     if (pathname === "/register") return response;
-    return redirectTo(request, response, "/login", "pending");
+    return redirectTo(
+      request,
+      response,
+      "/login",
+      profile.approvalStatus === "rejected" ? "rejected" : "pending",
+    );
   }
 
   if (profile.mustChangePassword && pathname !== "/reset-password/confirm") {

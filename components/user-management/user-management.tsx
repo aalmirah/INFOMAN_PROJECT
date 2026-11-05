@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type UserRole = "user" | "admin" | "superadmin";
-type AccountStatus = "active" | "pending" | "inactive" | "blocked";
+type AccountStatus = "active" | "pending" | "rejected" | "inactive" | "blocked";
 
 type ManagedUser = {
   id: string;
@@ -69,6 +69,7 @@ function isManagedUser(value: unknown): value is ManagedUser {
       user.role === "superadmin") &&
     (user.accountStatus === "active" ||
       user.accountStatus === "pending" ||
+      user.accountStatus === "rejected" ||
       user.accountStatus === "inactive" ||
       user.accountStatus === "blocked") &&
     typeof user.createdAt === "string"
@@ -551,6 +552,7 @@ export default function UserManagement() {
                   <option value="all">All statuses</option>
                   <option value="active">Active</option>
                   <option value="pending">Pending</option>
+                  <option value="rejected">Rejected</option>
                   <option value="inactive">Inactive</option>
                   <option value="blocked">Blocked</option>
                 </select>

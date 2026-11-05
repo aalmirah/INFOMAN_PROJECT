@@ -22,6 +22,24 @@ async function clearRejectedSession(): Promise<void> {
   }
 }
 
+const REJECTED_MESSAGE =
+  "Your registration was rejected by an administrator. Contact your administrator if you think this is a mistake.";
+
+function unavailableMessage(profile: {
+  isBlocked: boolean;
+  isActive: boolean;
+  approvalStatus: string;
+}): string {
+  if (profile.isBlocked) {
+    return "This account is currently unavailable. Contact your administrator for help.";
+  }
+  if (!profile.isActive) {
+    return "This account is currently inactive. Contact your administrator for help.";
+  }
+  if (profile.approvalStatus === "rejected") return REJECTED_MESSAGE;
+  return "Your account is awaiting administrator approval. You cannot sign in yet.";
+}
+
 function getQueryError(): string | null {
   return new URLSearchParams(window.location.search).get("error");
 }
@@ -42,6 +60,7 @@ export default function LoginPage() {
         "This account is currently inactive. Contact your administrator for help.",
       pending:
         "Your account is awaiting administrator approval. You cannot sign in yet.",
+      rejected: REJECTED_MESSAGE,
       profile:
         "We couldn't verify your account profile. Contact your administrator for help.",
       callback:
@@ -100,11 +119,7 @@ export default function LoginPage() {
           await clearRejectedSession();
           setStatus({
             kind: "error",
-            message: profile.isBlocked
-              ? "This account is currently unavailable. Contact your administrator for help."
-              : !profile.isActive
-                ? "This account is currently inactive. Contact your administrator for help."
-                : "Your account is awaiting administrator approval. You cannot sign in yet.",
+            message: unavailableMessage(profile),
           });
           return;
         }
@@ -178,11 +193,7 @@ export default function LoginPage() {
         await clearRejectedSession();
         setStatus({
           kind: "error",
-          message: profile.isBlocked
-            ? "This account is currently unavailable. Contact your administrator for help."
-            : !profile.isActive
-              ? "This account is currently inactive. Contact your administrator for help."
-              : "Your account is awaiting administrator approval. You cannot sign in yet.",
+          message: unavailableMessage(profile),
         });
         return;
       }

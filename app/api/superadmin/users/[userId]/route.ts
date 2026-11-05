@@ -115,12 +115,22 @@ export async function POST(
     if (target.role !== "user" || target.approval_status !== "pending") {
       return json({ error: "Only pending accounts can be rejected." }, 409);
     }
-    const { error } = await supabase.auth.admin.deleteUser(userId);
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({ approval_status: "rejected" })
+      .eq("id", userId)
+      .eq("role", "user")
+      .eq("approval_status", "pending")
+      .select("id")
+      .maybeSingle();
     if (error) {
-      console.error("Reject failed.", { status: error.status });
+      console.error("Reject failed.", { code: error.code });
       return json({ error: "Could not reject this account. Please try again." }, 502);
     }
-    return json({ success: true, message: "Account rejected and removed." });
+    if (!data) {
+      return json({ error: "Only pending accounts can be rejected." }, 409);
+    }
+    return json({ success: true, message: "Account rejected. The user will be told on their next sign-in." });
   }
 
   const promoting = action === "promote";
