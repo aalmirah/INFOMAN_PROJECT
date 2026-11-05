@@ -1,7 +1,6 @@
 'use strict';
 
 const crypto = require('node:crypto');
-const { Client } = require('pg');
 const { connect, databaseConfig } = require('./lib/database');
 
 const suffix = crypto.randomBytes(3).toString('hex').toUpperCase();
