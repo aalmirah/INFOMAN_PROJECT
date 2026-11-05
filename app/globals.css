@@ -115,3 +115,32 @@
   justify-content: flex-end;
   margin-bottom: var(--space-4);
 }
+
+.landing-preview-grid > .auth-modal .wireframe-requirements,
+.auth-wireframe-page .wireframe-requirements {
+  min-height: 0;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.landing-preview-grid > .auth-modal .wireframe-requirements legend,
+.auth-wireframe-page .wireframe-requirements legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 var(--space-1);
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.landing-preview-grid > .auth-modal .wireframe-requirements label,
+.auth-wireframe-page .wireframe-requirements label {
+  clear: both;
+  display: block;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
