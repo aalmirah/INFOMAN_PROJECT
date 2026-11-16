@@ -8,6 +8,11 @@ import {
   isSameOriginRequest,
   readJsonRequestBody,
 } from "@/lib/user-management/request";
+import {
+  ensureErpAccount,
+  type ErpAccountStatus,
+  type ProfileRole,
+} from "@/lib/user-management/provision-erp-account";
 
 type RouteContext = {
   params: Promise<{ userId: string }>;
@@ -25,6 +30,31 @@ function json(body: Record<string, unknown>, status = 200): Response {
     status,
     headers: { "Cache-Control": "no-store" },
   });
+}
+
+async function syncErpAccount(
+  userId: string,
+  profileRole: ProfileRole,
+  status: ErpAccountStatus,
+  isBlocked: boolean | undefined,
+  failureMessage: string,
+): Promise<Response | null> {
+  try {
+    await ensureErpAccount({
+      authUserId: userId,
+      profileRole,
+      status,
+      isBlocked,
+    });
+    return null;
+  } catch (error) {
+    console.error("ERP account synchronization failed.", {
+      userId,
+      profileRole,
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+    return json({ error: failureMessage }, 502);
+  }
 }
 
 export async function POST(
@@ -60,7 +90,7 @@ export async function POST(
   const supabase = getSupabaseAdminClient();
   const { data: target, error: lookupError } = await supabase
     .from("profiles")
-    .select("id, role, approval_status, is_active, is_blocked")
+    .select("id, role, approval_status, is_active, is_blocked, must_change_password")
     .eq("id", userId)
     .maybeSingle();
 
@@ -72,8 +102,17 @@ export async function POST(
     return json({ error: "User not found." }, 404);
   }
 
+  if (target.id === result.actor.id) {
+    return json({ error: "You cannot change your own account." }, 403);
+  }
+
   if (target.role === "superadmin") {
-    // Every action here would delete or demote a Superadmin, so the last one is always protected.
+    if (action !== "demote") {
+      return json(
+        { error: "Superadmin accounts can only be demoted to Admin." },
+        403,
+      );
+    }
     const isLast = await isLastActiveSuperadmin(target.id);
     if (isLast === null) {
       return json({ error: "Could not verify Superadmin safety. Action blocked." }, 503);
@@ -81,16 +120,29 @@ export async function POST(
     if (isLast) {
       return json({ error: LAST_SUPERADMIN_MESSAGE }, 409);
     }
-    return json(
-      { error: "Superadmin accounts cannot be changed from this screen." },
-      403,
-    );
-  }
-  if (target.id === result.actor.id) {
-    return json({ error: "You cannot change your own account." }, 403);
   }
 
   if (action === "approve") {
+    if (target.role !== "user") {
+      return json({ error: "Only pending User accounts can be approved." }, 409);
+    }
+    if (target.approval_status === "approved") {
+      if (!target.is_active || target.is_blocked) {
+        return json({ error: "Only active, unblocked accounts can be approved." }, 409);
+      }
+      const syncError = await syncErpAccount(
+        userId,
+        "user",
+        "Active",
+        undefined,
+        "The account is approved, but its ERP account could not be synchronized. Contact an administrator.",
+      );
+      return syncError ?? json({
+        success: true,
+        message: "Account is approved and its ERP account is synchronized.",
+      });
+    }
+
     const { data, error } = await supabase
       .from("profiles")
       .update({ approval_status: "approved", must_change_password: true })
@@ -108,6 +160,14 @@ export async function POST(
     if (!data) {
       return json({ error: "This account is no longer pending approval." }, 409);
     }
+    const syncError = await syncErpAccount(
+      userId,
+      "user",
+      "Active",
+      undefined,
+      "The account was approved, but ERP account provisioning failed. Please retry or contact an administrator.",
+    );
+    if (syncError) return syncError;
     return json({ success: true, message: "Account approved." });
   }
 
@@ -134,11 +194,18 @@ export async function POST(
   }
 
   const promoting = action === "promote";
+  const demotingSuperadmin = action === "demote" && target.role === "superadmin";
+  const previousRole = promoting
+    ? "user"
+    : demotingSuperadmin
+      ? "superadmin"
+      : "admin";
+  const nextRole = promoting || demotingSuperadmin ? "admin" : "user";
   const { data, error } = await supabase
     .from("profiles")
-    .update({ role: promoting ? "admin" : "user" })
+    .update({ role: nextRole })
     .eq("id", userId)
-    .eq("role", promoting ? "user" : "admin")
+    .eq("role", previousRole)
     .eq("approval_status", "approved")
     .select("id")
     .maybeSingle();
@@ -151,13 +218,31 @@ export async function POST(
       {
         error: promoting
           ? "Only approved Users can be promoted to Admin."
-          : "Only Admins can be demoted to User.",
+          : demotingSuperadmin
+            ? "Only approved Superadmins can be demoted to Admin."
+            : "Only Admins can be demoted to User.",
       },
       409,
     );
   }
+  const erpStatus =
+    target.is_active === true && target.is_blocked === false
+      ? "Active"
+      : "Inactive";
+  const syncError = await syncErpAccount(
+    userId,
+    nextRole,
+    erpStatus,
+    target.is_blocked,
+    "The profile role was changed, but ERP account synchronization failed. Contact an administrator.",
+  );
+  if (syncError) return syncError;
   return json({
     success: true,
-    message: promoting ? "User promoted to Admin." : "Admin demoted to User.",
+    message: promoting
+      ? "User promoted to Admin."
+      : demotingSuperadmin
+        ? "Superadmin demoted to Admin."
+        : "Admin demoted to User.",
   });
 }

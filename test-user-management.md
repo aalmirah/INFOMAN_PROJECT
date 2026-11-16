@@ -24,6 +24,11 @@
 | UM-07 | Admin cannot view Superadmin | Sign in as Admin and inspect the user directory and search results for a known Superadmin test account. | Superadmin accounts are not exposed in the Admin's directory or search results. | Pass — tester reported successful |
 | UM-08 | Admin cannot edit Superadmin | As Admin, attempt to open or submit an edit/block action for a Superadmin test account, including a direct request if that was part of the test. | The operation is denied; the Superadmin account remains unchanged. | Pass — tester reported successful |
 | UM-09 | Protect the last Superadmin | In an isolated QA setup with exactly one remaining Superadmin, try to demote, block, deactivate, or delete that account using the available management action. | The operation is rejected and at least one active Superadmin remains. | Pass — tester reported successful |
+| UM-10 | Admin directory role restrictions | As Admin, browse and search the directory, then request the Admin and Superadmin filters directly. | Only User accounts appear in results and counts; direct requests for Admin or Superadmin roles are denied. Superadmins can still list all roles. | Not Run |
+| UM-11 | Rights catalogue and module controls | After the DEV07 database prerequisites are approved and installed in isolated QA, open Rights for an eligible User. Use individual, module, All and None controls. | All 36 active rights are grouped into the five modules; module controls select or clear only that module. | Not Run |
+| UM-12 | Rights save and audit | Grant, revoke and reactivate rights; leave another selected. Inspect permissions and audit entries, then simulate an audit failure. | Revocations are Inactive, unchanged rows are preserved, each change has one identifying audit entry, and failed audits roll back all changes. | Not Run |
+| UM-13 | Rights role and account restrictions | Try the Rights UI and direct API requests as User, Admin and Superadmin against each target role and ineligible accounts. | Only eligible targets are available; Admin manages Users only; Superadmin rights are read-only; unauthorized requests fail. | Not Run |
+| UM-14 | Stale rights changes | Open the same target in two sessions; save a change in one, then save the stale selection in the other. | The stale save is rejected without overwriting the first change. | Not Run |
 
 ## Notes
 

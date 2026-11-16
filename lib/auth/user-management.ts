@@ -117,11 +117,13 @@ export function canManageProfile(
   actor: UserManagementActor,
   profile: ManagedProfile,
 ): boolean {
-  if (profile.id === actor.id || profile.role === "superadmin") {
-    return false;
-  }
+  if (profile.id === actor.id) return false;
   if (actor.role === "superadmin") {
-    return profile.role === "user" || profile.role === "admin";
+    return (
+      profile.role === "user" ||
+      profile.role === "admin" ||
+      profile.role === "superadmin"
+    );
   }
   return profile.role === "user";
 }

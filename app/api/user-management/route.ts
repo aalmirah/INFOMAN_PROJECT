@@ -6,7 +6,7 @@ import {
 } from "@/lib/user-management/request";
 
 const PROFILE_COLUMNS =
-  "id, first_name, last_name, email, role, approval_status, is_active, is_blocked, created_at";
+  "id, first_name, last_name, email, role, approval_status, is_active, is_blocked, must_change_password, created_at";
 const PAGE_SIZE = 25;
 
 function parsePage(value: string | null): number | null {
@@ -37,6 +37,7 @@ function toAccountStatus(profile: {
 
 export async function GET(request: Request): Promise<Response> {
   const result = await getUserManagementActor();
+
   if (!result.actor) {
     return Response.json(
       { error: result.error },
@@ -57,27 +58,36 @@ export async function GET(request: Request): Promise<Response> {
       requestedStatus,
     )
   ) {
-    return Response.json({ error: "Invalid user list filters." }, { status: 400 });
+    return Response.json(
+      { error: "Invalid user list filters." },
+      { status: 400 },
+    );
   }
 
   if (
     result.actor.role === "admin" &&
     requestedRole !== "all" &&
-    requestedRole !== "user" &&
-    requestedRole !== "admin"
+    requestedRole !== "user"
   ) {
-    return Response.json({ error: "You cannot view that role." }, { status: 403 });
+    return Response.json(
+      { error: "You cannot view that role." },
+      { status: 403 },
+    );
   }
 
   const supabase = getSupabaseAdminClient();
+
   let query = supabase
     .from("profiles")
     .select(PROFILE_COLUMNS, { count: "exact" })
+    .neq("approval_status", "pending")
     .order("created_at", { ascending: false })
     .order("id", { ascending: false });
 
   if (result.actor.role === "admin") {
-    query = query.in("role", ["user", "admin"]);
+    query = requestedRole === "user"
+      ? query.eq("role", "user")
+      : query.in("role", ["user", "admin"]);
   } else if (requestedRole !== "all") {
     query = query.eq("role", requestedRole);
   }
@@ -110,24 +120,39 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   const from = (page - 1) * PAGE_SIZE;
-  const { data, error, count } = await query.range(from, from + PAGE_SIZE - 1);
+  const { data, error, count } = await query.range(
+    from,
+    from + PAGE_SIZE - 1,
+  );
+
   if (error) {
-    console.error("User Management list query failed.", { code: error.code });
+    console.error("User Management list query failed.", {
+      code: error.code,
+    });
+
     return Response.json(
       { error: "Could not load users. Please try again." },
       { status: 502 },
     );
   }
 
-  const users = (data ?? []).map((profile) => ({
-    id: profile.id,
-    firstName: profile.first_name,
-    lastName: profile.last_name,
-    email: profile.email,
-    role: profile.role,
-    accountStatus: toAccountStatus(profile),
-    createdAt: profile.created_at,
-  }));
+  const users = (data ?? []).map((profile) => {
+    const accountStatus = toAccountStatus(profile);
+
+    return {
+      id: profile.id,
+      firstName: profile.first_name,
+      lastName: profile.last_name,
+      email: profile.email,
+      role: profile.role,
+      accountStatus,
+      rightsEligible:
+        accountStatus === "active" &&
+        profile.must_change_password === false,
+      createdAt: profile.created_at,
+    };
+  });
+
   const total = count ?? 0;
 
   return Response.json(
@@ -135,6 +160,8 @@ export async function GET(request: Request): Promise<Response> {
       users,
       actorRole: result.actor.role,
       actorId: result.actor.id,
+      rightsEnabled:
+        process.env.DEV07_RIGHTS_MANAGEMENT_ENABLED === "true",
       page,
       pageSize: PAGE_SIZE,
       total,
@@ -145,7 +172,11 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value)
+  );
 }
 
 export async function POST(request: Request): Promise<Response> {
@@ -157,6 +188,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const result = await getUserManagementActor();
+
   if (!result.actor) {
     return Response.json(
       { error: result.error },
@@ -165,21 +197,33 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const body = await readJsonRequestBody(request);
+
   if (!isRecord(body)) {
-    return Response.json({ error: "Request body must be valid JSON." }, { status: 400 });
+    return Response.json(
+      { error: "Request body must be valid JSON." },
+      { status: 400 },
+    );
   }
+
   if (
     Object.keys(body).length !== 3 ||
     !Object.hasOwn(body, "firstName") ||
     !Object.hasOwn(body, "lastName") ||
     !Object.hasOwn(body, "email")
   ) {
-    return Response.json({ error: "Invalid user creation fields." }, { status: 400 });
+    return Response.json(
+      { error: "Invalid user creation fields." },
+      { status: 400 },
+    );
   }
 
-  const firstName = typeof body.firstName === "string" ? body.firstName.trim() : "";
-  const lastName = typeof body.lastName === "string" ? body.lastName.trim() : "";
-  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const firstName =
+    typeof body.firstName === "string" ? body.firstName.trim() : "";
+  const lastName =
+    typeof body.lastName === "string" ? body.lastName.trim() : "";
+  const email =
+    typeof body.email === "string" ? body.email.trim() : "";
+
   if (
     !firstName ||
     firstName.length > 80 ||
@@ -191,13 +235,15 @@ export async function POST(request: Request): Promise<Response> {
   ) {
     return Response.json(
       {
-        error: "Enter a valid email address and names of up to 80 characters.",
+        error:
+          "Enter a valid email address and names of up to 80 characters.",
       },
       { status: 400 },
     );
   }
 
   const supabase = getSupabaseAdminClient();
+
   const { data, error } = await supabase.auth.admin.createUser({
     email,
     email_confirm: true,
@@ -207,11 +253,13 @@ export async function POST(request: Request): Promise<Response> {
       full_name: `${firstName} ${lastName}`,
     },
   });
+
   if (error || !data.user) {
     console.error("Admin-created Auth user could not be created.", {
       code: error?.code,
       status: error?.status,
     });
+
     return Response.json(
       { error: "Could not add that user. Check the email and try again." },
       { status: error?.status === 429 ? 429 : 400 },
@@ -230,21 +278,32 @@ export async function POST(request: Request): Promise<Response> {
     profile.role !== "user" ||
     profile.approval_status !== "pending"
   ) {
-    console.error("Admin-created Auth profile was not created as expected.", {
-      code: profileError?.code,
-      profileFound: Boolean(profile),
-    });
-    const { error: cleanupError } = await supabase.auth.admin.deleteUser(
-      data.user.id,
+    console.error(
+      "Admin-created Auth profile was not created as expected.",
+      {
+        code: profileError?.code,
+        profileFound: Boolean(profile),
+      },
     );
+
+    const { error: cleanupError } =
+      await supabase.auth.admin.deleteUser(data.user.id);
+
     if (cleanupError) {
-      console.error("Auth user cleanup failed after profile creation error.", {
-        code: cleanupError.code,
-        status: cleanupError.status,
-      });
+      console.error(
+        "Auth user cleanup failed after profile creation error.",
+        {
+          code: cleanupError.code,
+          status: cleanupError.status,
+        },
+      );
     }
+
     return Response.json(
-      { error: "Could not complete user creation. Please contact an administrator." },
+      {
+        error:
+          "Could not complete user creation. Please contact an administrator.",
+      },
       { status: 502 },
     );
   }
@@ -261,6 +320,9 @@ export async function POST(request: Request): Promise<Response> {
         createdAt: profile.created_at,
       },
     },
-    { status: 201, headers: { "Cache-Control": "no-store" } },
+    {
+      status: 201,
+      headers: { "Cache-Control": "no-store" },
+    },
   );
 }
