@@ -68,6 +68,12 @@ export async function PATCH(
   if (!profile) {
     return Response.json({ error: "User not found." }, { status: 404 });
   }
+  if (!canManageProfile(result.actor, profile)) {
+    return Response.json(
+      { error: "You are not allowed to manage this account." },
+      { status: 403 },
+    );
+  }
   if (profile.role === "superadmin" && body.isBlocked === true) {
     const isLast = await isLastActiveSuperadmin(profile.id);
     if (isLast === null) {
@@ -82,12 +88,6 @@ export async function PATCH(
         { status: 409 },
       );
     }
-  }
-  if (!canManageProfile(result.actor, profile)) {
-    return Response.json(
-      { error: "You are not allowed to manage this account." },
-      { status: 403 },
-    );
   }
 
   const keys = Object.keys(body);
@@ -134,7 +134,7 @@ export async function PATCH(
     updateQuery = updateQuery.eq("role", "user");
   } else {
     updateQuery = updateQuery
-      .in("role", ["user", "admin"])
+      .in("role", ["user", "admin", "superadmin"])
       .neq("id", result.actor.id);
   }
 

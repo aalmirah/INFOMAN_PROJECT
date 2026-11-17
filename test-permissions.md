@@ -2,11 +2,80 @@
 
 **Task:** Tester Task 4 — Permission matrix  
 **Scope:** Superadmin, Admin, and User permissions across every granular action right; sidebar/menu, action-button, and server-endpoint enforcement.  
-**Execution status:** Tester-reported Pass — tester confirmed all permission checks were tested and working. Results below reflect that confirmation and were not independently re-run for this document.
+**Execution status:** Historical tester-reported Pass. This predates the current DEV07 implementation and is not evidence that DEV07 passed QA. The DEV07 cases below remain Not Run.
 
-## Important: load the authoritative rights catalogue first
+## DEV07 isolated QA setup and cases — not run
 
-The current checkout does not contain the permission editor/catalogue or an authoritative list of the granular right labels. The project handoff describes 36 rights across these groups: Customer (3), Product (6), Human Resources (13), Sales (7), and Reports (7). The tester reports that all permission checks passed. For a traceable report, replace each `TODO` with the exact right name and corresponding endpoint from the permission editor/API.
+The tester-reported results below are not evidence that the current DEV07
+implementation, SQL proposal, or module policies have passed QA. Keep Rights
+Management disabled until the DEV07 cases and action enforcement pass.
+
+The updated atomic save RPC is installed and verified in both MAIN
+(project reference `ijfucrcvvuwqdfwiqtzh`) and HOPE-ERP-QA
+(project reference `jlygmihiufrlqxzsfhpf`).
+
+Final DEV07 behavioral testing must use MAIN, as agreed, with the existing
+Admin or Superadmin test account and the existing regular User test account.
+Do not create test accounts, change account roles, or test against real users.
+Do not run SQL or make additional database changes as part of this test.
+Record actual results and sanitized evidence; do not mark untested cases Pass.
+
+The agreed 36-right catalogue was applied to QA with separate approval. The
+QA database currently has an earlier version of the atomic save RPC; the
+updated RPC definition has not yet been installed there. Review and separate
+approval are required before updating the QA function. Four QA-only profiles
+were approved and linked to new ERP accounts with separate approval; a
+read-only check found one eligible linked Superadmin, two Admins, and one
+User. The tester reported successful sign-in and expected User Management
+button visibility for all four accounts in the isolated QA login app. Rights
+API, grant/revoke, audit, and per-action enforcement QA remain not run.
+
+### Minimum fixtures
+
+- Four synthetic, sign-in-capable, approved, active and unblocked profiles:
+  one Superadmin, two distinct Admins, and one User. The second Admin is needed
+  to test that an Admin cannot manage another Admin.
+- Each profile needs an existing active, unblocked ERP account linked by
+  `app_user.auth_user_id = profiles.id`, with the corresponding active ERP
+  role. `profiles.id` is an Auth UUID, not `app_user.user_id`. Use only links
+  established by an independently approved process; do not infer them by email.
+- Five active modules and the approved 36 active rights: Customer 3, Product 6,
+  Human Resources 13, Sales 7, and Reports 7. Record the approved exact code,
+  action, label, and protected endpoint or database operation for every right.
+  The agreed catalogue is installed in QA, but missing action APIs and report
+  definitions still prevent complete action-enforcement verification.
+- For the User, choose four distinct active catalogue rights: one without an
+  assignment, one `Inactive`, and two `Active`. Record their IDs and the
+  initial audit and permission rows. Create this fixture only through an
+  approved QA procedure; never remove permission or audit records physically.
+
+An unmerged historical branch contains a candidate seed at Git revision
+`e71981f`, path `db/seeds/001_default_roles_modules_rights.sql`. Its presence
+does not establish that its codes or action-to-resource mappings are approved.
+
+### DEV07 test cases
+
+Run the DEV07 cases against MAIN using the existing approved test accounts.
+The updated RPC is already installed in MAIN. Do not run SQL or modify database
+configuration during behavioral testing. Record sanitized evidence; all cases
+below remain **Not Run** until the Tester executes them.
+
+| Case | Expected result |
+|---|---|
+| Grant and restore | Grant the unassigned right and reactivate the inactive right; one row per right ends `Active`. Exactly one audit row per change identifies actor ERP ID, target ERP ID, right ID, `GRANT`, and timestamp. |
+| Revoke and preserve | Untick one active right while retaining the other. The revoked row remains present as `Inactive`; the retained row is unchanged. Exactly one audit row records `REVOKE` and the actor, target, right, and timestamp. |
+| No-op | Save an unchanged selection. No permission row or audit record changes. |
+| Atomic rollback | Arrange an approved, isolated audit failure on the second change of a multi-right save. The save fails and both earlier and later permission changes and audit inserts are rolled back. Verify the initial rows and audit count are unchanged. |
+| Concurrent saves | Two editors save from the same initial snapshot with different choices. One succeeds; the stale save is rejected, with no partial changes or extra audit rows. |
+| Management roles | Admin can edit the User but cannot view or edit the other Admin or Superadmin. User cannot access the Rights API. Superadmin can edit Admin/User and sees Superadmin rights checked and read-only. |
+| Per-action enforcement | For every approved right and its mapped action, test direct server/database access for granted and revoked User and Admin accounts. Revoked or inactive rights must not authorize the action; Superadmin retains every active right. Preserve any stricter role restrictions. |
+| Access paths | Verify underlying tables, views, RLS policy combinations, RPCs, and service-role-backed APIs cannot bypass the corresponding action check. Test inactive rights/modules and blocked accounts. |
+
+## Legacy permission matrix
+
+The tester-reported matrix below predates the current DEV07 implementation and
+is not evidence that it passed QA. Its `TODO` entries are not a verified mapping
+of the agreed catalogue to existing action endpoints.
 
 ## Preconditions
 

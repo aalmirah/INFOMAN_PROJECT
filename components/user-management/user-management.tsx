@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import RightsDialog from "@/components/user-management/rights-dialog";
 
 type UserRole = "user" | "admin" | "superadmin";
 type AccountStatus = "active" | "pending" | "rejected" | "inactive" | "blocked";
@@ -13,6 +14,7 @@ type ManagedUser = {
   email: string | null;
   role: UserRole;
   accountStatus: AccountStatus;
+  rightsEligible: boolean;
   createdAt: string;
 };
 
@@ -20,6 +22,7 @@ type UserListResponse = {
   users: ManagedUser[];
   actorRole: "admin" | "superadmin";
   actorId: string;
+  rightsEnabled: boolean;
   page: number;
   pageSize: number;
   total: number;
@@ -38,6 +41,7 @@ const EMPTY_LIST: UserListResponse = {
   users: [],
   actorRole: "admin",
   actorId: "",
+  rightsEnabled: false,
   page: 1,
   pageSize: 25,
   total: 0,
@@ -72,6 +76,7 @@ function isManagedUser(value: unknown): value is ManagedUser {
       user.accountStatus === "rejected" ||
       user.accountStatus === "inactive" ||
       user.accountStatus === "blocked") &&
+    typeof user.rightsEligible === "boolean" &&
     typeof user.createdAt === "string"
   );
 }
@@ -84,6 +89,7 @@ function isUserListResponse(value: unknown): value is UserListResponse {
     result.users.every(isManagedUser) &&
     (result.actorRole === "admin" || result.actorRole === "superadmin") &&
     typeof result.actorId === "string" &&
+    typeof result.rightsEnabled === "boolean" &&
     typeof result.page === "number" &&
     typeof result.pageSize === "number" &&
     typeof result.total === "number" &&
@@ -129,6 +135,7 @@ export default function UserManagement() {
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingAccount[]>([]);
   const [pendingError, setPendingError] = useState<string | null>(null);
+  const [rightsUser, setRightsUser] = useState<ManagedUser | null>(null);
 
   useEffect(() => {
     if (list.actorRole !== "superadmin") return;
@@ -259,7 +266,7 @@ export default function UserManagement() {
             ["admin", "Admin"],
             ["superadmin", "Superadmin"],
           ]
-        : [["all", "All roles"], ["user", "User"], ["admin", "Admin"]],
+        : [["all", "All roles"], ["user", "User"]],
     [list.actorRole],
   );
 
@@ -499,7 +506,7 @@ export default function UserManagement() {
               <p className="form-help">
                 {list.actorRole === "superadmin"
                   ? "Manage user access and account details."
-                  : "Manage User accounts. Admin accounts are view-only."}
+                  : "Manage User accounts."}
               </p>
             </div>
             <div className="table-filters">
@@ -551,7 +558,6 @@ export default function UserManagement() {
                 >
                   <option value="all">All statuses</option>
                   <option value="active">Active</option>
-                  <option value="pending">Pending</option>
                   <option value="rejected">Rejected</option>
                   <option value="inactive">Inactive</option>
                   <option value="blocked">Blocked</option>
@@ -677,9 +683,12 @@ export default function UserManagement() {
                   list.users.map((user) => {
                     const canManage =
                       user.id !== list.actorId &&
-                      (list.actorRole === "superadmin"
-                        ? user.role === "user" || user.role === "admin"
-                        : user.role === "user");
+                      (list.actorRole === "superadmin" || user.role === "user");
+                    const canOpenRights =
+                      list.rightsEnabled &&
+                      user.rightsEligible &&
+                      (canManage ||
+                        (list.actorRole === "superadmin" && user.role === "superadmin"));
                     const isEditing = editingUserId === user.id;
                     const isBusy = busyUserId === user.id;
                     return (
@@ -735,9 +744,19 @@ export default function UserManagement() {
                           </span>
                         </td>
                         <td>
-                          {canManage ? (
+                          {canManage || canOpenRights ? (
                             <div className="um-actions">
-                              {isEditing ? (
+                              {canOpenRights && (
+                                <button
+                                  className="table-action um-action-button"
+                                  disabled={isBusy}
+                                  onClick={() => setRightsUser(user)}
+                                  type="button"
+                                >
+                                  Rights
+                                </button>
+                              )}
+                              {canManage && (isEditing ? (
                                 <>
                                   <button
                                     className="um-action-button"
@@ -774,7 +793,9 @@ export default function UserManagement() {
                                   </button>
                                   {list.actorRole === "superadmin" &&
                                     user.accountStatus === "active" &&
-                                    (user.role === "user" || user.role === "admin") && (
+                                    (user.role === "user" ||
+                                      user.role === "admin" ||
+                                      user.role === "superadmin") && (
                                       <button
                                         className="table-action um-action-button"
                                         disabled={isBusy}
@@ -787,7 +808,11 @@ export default function UserManagement() {
                                         }
                                         type="button"
                                       >
-                                        {user.role === "user" ? "Make Admin" : "Make User"}
+                                        {user.role === "user"
+                                          ? "Make Admin"
+                                          : user.role === "admin"
+                                            ? "Make User"
+                                            : "Demote to Admin"}
                                       </button>
                                     )}
                                   <button
@@ -799,7 +824,7 @@ export default function UserManagement() {
                                     Edit
                                   </button>
                                 </>
-                              )}
+                              ))}
                             </div>
                           ) : <span aria-label="No actions available">—</span>}
                         </td>
@@ -848,6 +873,14 @@ export default function UserManagement() {
             </div>
           </footer>
         </section>
+        {rightsUser && (
+          <RightsDialog
+            userId={rightsUser.id}
+            userName={displayName(rightsUser)}
+            onClose={() => setRightsUser(null)}
+            onSaved={() => setNotice("Rights saved.")}
+          />
+        )}
       </main>
     </div>
   );

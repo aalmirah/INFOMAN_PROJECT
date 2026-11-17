@@ -102,3 +102,50 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+### DEV07 Rights Management
+
+Rights Management is disabled by default. Keep
+`DEV07_RIGHTS_MANAGEMENT_ENABLED=false` until the database changes and
+end-to-end authorization, permission changes, and audit logging have passed
+isolated QA. SQL proposals in `docs/` must not be executed without separate
+approval.
+
+The [atomic rights save proposal](./docs/dev07_atomic_rights_save_proposal.sql)
+uses the existing permissions and audit tables. The updated RPC definition was
+applied to MAIN (project reference `ijfucrcvvuwqdfwiqtzh`) and HOPE-ERP-QA
+(project reference `jlygmihiufrlqxzsfhpf`). The RPC definition was verified
+in both projects. Final DEV07 behavioral testing is assigned to the Tester
+on MAIN using existing test accounts only. Do not use real user accounts.
+Grant/revoke, audit, concurrency, and per-action enforcement results remain
+pending Tester verification.
+For editable rights, the actor and target need existing linked, active,
+unblocked ERP accounts with active roles matching their profiles; the
+application also requires eligible active profiles. Account provisioning and
+profile synchronization are outside DEV07's scope. Missing links or role
+mismatches must be resolved separately, without matching accounts by email.
+
+The [QA catalogue proposal](./docs/dev07_qa_catalogue_proposal.sql) was applied
+to HOPE-ERP-QA with separate approval, replacing the synthetic placeholders
+with the agreed 36-right baseline. Four QA-only profiles and ERP links were
+created with separate approval; a read-only check verified one eligible linked
+Superadmin, two Admins, and one User. Sign-in and User Management button
+visibility was historically reported as passed by the tester; current DEV07 Rights behavioral QA remains
+outstanding.
+Existing module policies must also be verified for per-action enforcement:
+the exported schema's customer, product, and report policies do not check
+`user_permission` directly. Do not treat successful rights assignment alone as
+proof that module actions are protected.
+
+Run the focused automated UI and API tests with:
+
+```powershell
+node --test tests\rights-dialog.test.mjs tests\rights-management.test.mjs tests\user-management-visibility.test.mjs
+```
+
+Synthetic PostgreSQL fixtures exist, but require separate approval before
+executing SQL and do not replace isolated Supabase QA against the actual schema,
+triggers, grants, and RLS. `node tests/dev07-qa-catalogue-postgres.mjs` tests the
+catalogue proposal in a disposable, network-isolated container. The existing
+rights PostgreSQL test runner also exercises out-of-scope proposals, so do not
+use it as a DEV07-only QA test without review.
