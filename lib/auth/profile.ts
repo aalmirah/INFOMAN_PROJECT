@@ -30,6 +30,10 @@ export async function getAuthProfile(
     return { profile: null, error };
   }
 
+  if (data === null) {
+    return { profile: null, error: null };
+  }
+
   if (
     !isRecord(data) ||
     typeof data.approval_status !== "string" ||

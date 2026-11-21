@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import RightsDialog from "@/components/user-management/rights-dialog";
 
@@ -111,7 +111,7 @@ function statusLabel(status: AccountStatus): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
-export default function UserManagement() {
+export default function UserManagement({ sidebar }: { sidebar: ReactNode }) {
   const [list, setList] = useState<UserListResponse>(EMPTY_LIST);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -392,28 +392,7 @@ export default function UserManagement() {
 
   return (
     <div className="app-shell">
-      <aside className="app-sidebar">
-        <Link className="brand brand-on-dark" href="/session">
-          <span className="brand-mark" aria-hidden="true">H</span>
-          <span>Hope, Inc. ERP</span>
-        </Link>
-        <nav className="app-nav app-nav-grouped" aria-label="Administration navigation">
-          <div>
-            <span className="nav-group-label">Dashboard</span>
-            <Link className="app-nav-link" href="/session">Dashboard</Link>
-          </div>
-          <div>
-            <span className="nav-group-label">Administration</span>
-            <Link
-              aria-current="page"
-              className="app-nav-link is-active"
-              href="/user-management"
-            >
-              User Management
-            </Link>
-          </div>
-        </nav>
-      </aside>
+      {sidebar}
 
       <main className="app-main">
         <header className="app-header">

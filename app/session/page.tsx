@@ -1,127 +1,122 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { getAuthProfile } from "@/lib/auth/profile";
-import { getSupabaseClient } from "@/lib/supabase/client";
+import { Suspense } from "react";
+import Sidebar from "@/components/dashboard/sidebar";
+import RefreshAccess from "@/components/dashboard/refresh-access";
+import { canAccessModule, hasGrantedRight, type Dev07RightCode } from "@/lib/auth/rights-authorization";
+import { getDashboardContext } from "@/lib/dashboard/context";
+import { DASHBOARD_MODULES } from "@/lib/dashboard/modules";
+import { getSupabaseAdminClient } from "@/lib/supabase/admin";
 
-export default function SessionPage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSigningOut, setIsSigningOut] = useState(false);
-  const [email, setEmail] = useState<string | null>(null);
-  const [canManageUsers, setCanManageUsers] = useState(false);
-  const [status, setStatus] = useState<string | null>(null);
+export const dynamic = "force-dynamic";
 
-  useEffect(() => {
-    let active = true;
-    void getSupabaseClient()
-      .auth.getUser()
-      .then(async ({ data: { user }, error }) => {
-        if (!active) return;
-        if (error) {
-          setStatus("We couldn't verify your session. Please try again.");
-          return;
-        }
-        if (!user) {
-          router.replace("/login");
-          return;
-        }
-        setEmail(user.email ?? null);
-        const { profile } = await getAuthProfile(getSupabaseClient(), user.id);
-        if (active) {
-          setCanManageUsers(
-            profile?.role === "admin" || profile?.role === "superadmin",
-          );
-        }
-      })
-      .catch(() => {
-        if (active) {
-          setStatus("We couldn't verify your session. Please try again.");
-        }
-      })
-      .finally(() => {
-        if (active) setIsLoading(false);
-      });
+const stats: {
+  label: string;
+  table: string;
+  id: string;
+  right?: Dev07RightCode;
+  currentEmployees?: boolean;
+}[] = [
+  { label: "Total Customers", table: "customer", id: "custno" },
+  { label: "Total Products", table: "product", id: "prodcode", right: "reports.product_master" },
+  { label: "Total Sales", table: "sales", id: "transno" },
+  { label: "Current Employees", table: "employee", id: "empno", right: "reports.active_employees", currentEmployees: true },
+];
 
-    return () => {
-      active = false;
-    };
-  }, [router]);
-
-  async function handleSignOut() {
-    if (isSigningOut) return;
-    setStatus(null);
-    setIsSigningOut(true);
-
-    try {
-      const { error } = await getSupabaseClient().auth.signOut();
-      if (error) {
-        console.error("Supabase sign-out failed.", {
-          code: error.code,
-          status: error.status,
-        });
-        setStatus("We couldn't sign you out. Please try again.");
-        return;
-      }
-
-      router.replace("/login");
-      router.refresh();
-    } catch (error) {
-      console.error(
-        "Supabase sign-out failed.",
-        error instanceof Error ? error.name : "Unknown error",
-      );
-      setStatus("We couldn't sign you out. Please try again.");
-    } finally {
-      setIsSigningOut(false);
+async function Statistics({ allowed }: { allowed: boolean[] }) {
+  const admin = getSupabaseAdminClient();
+  const results = await Promise.all(stats.map(async (stat, index) => {
+    if (!allowed[index]) return null;
+    let query = admin.from(stat.table).select(stat.id, { count: "exact", head: true })
+      .eq("is_deleted", false);
+    if (stat.currentEmployees) query = query.is("sepdate", null);
+    const { count, error } = await query;
+    if (error || count === null) {
+      console.error("Dashboard statistic lookup failed.", { table: stat.table, code: error?.code });
+      return "Unavailable";
     }
-  }
+    return count;
+  }));
+  return (
+    <section className="dashboard-stats" aria-label="Dashboard statistics">
+      {stats.map((stat, index) => (
+        <article className="dashboard-stat-card" key={stat.table}>
+          <span>{stat.label}</span>
+          <strong>{results[index] ?? "—"}</strong>
+          <small>{!allowed[index] ? "Not authorized" : results[index] === "Unavailable" ? "Could not load count" : results[index] === 0 ? "No records" : "Current total"}</small>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function StatisticsLoading() {
+  return (
+    <section className="dashboard-stats" aria-label="Dashboard statistics" aria-busy="true">
+      {stats.map((stat) => (
+        <article className="dashboard-stat-card" key={stat.table}>
+          <span>{stat.label}</span><strong>—</strong><small>Loading...</small>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+export default async function SessionPage() {
+  const context = await getDashboardContext();
+  if ("error" in context) return <main className="dashboard-content"><p role="alert">{context.error}</p></main>;
+  const { actor, rights } = context;
+  const allowedStats = stats.map((stat) =>
+    actor.role !== "user" || (stat.right !== undefined && hasGrantedRight(rights, stat.right)),
+  );
+  const canManageUsers = actor.role === "admin" || actor.role === "superadmin";
 
   return (
-    <main className="auth-layout functional-auth">
-      <section className="auth-card" aria-labelledby="session-title">
-        <header className="auth-header">
-          <Link className="brand" href="/">
-            <span className="brand-mark" aria-hidden="true">H</span>
-            <span>HOPE Inc. ERP</span>
-          </Link>
-          <h1 id="session-title">You&apos;re signed in</h1>
-          <p>
-            The Dashboard is not available yet. This temporary page lets you
-            verify your session and sign out.
-          </p>
+    <div className="app-shell">
+      <RefreshAccess />
+      <Sidebar actor={actor} rights={rights} current="/session" />
+      <main className="app-main">
+        <header className="app-header dashboard-page-header">
+          <h1>Dashboard</h1>
+          <div className="dashboard-header-actions"><span className="role-badge">{actor.role}</span></div>
         </header>
-
-        {email && <p className="form-help">Signed in as {email}</p>}
-
-        {status && (
-          <div
-            aria-live="polite"
-            className="status-note functional-auth-status"
-            role="alert"
-          >
-            <span>{status}</span>
+        <p className="dashboard-signed-in">Signed in as {actor.name}</p>
+        <section className="welcome-banner">
+          <h2>Welcome, {actor.name}</h2>
+          <p>Here is an overview of your HOPE Inc. ERP workspace.</p>
+        </section>
+        <Suspense fallback={<StatisticsLoading />}><Statistics allowed={allowedStats} /></Suspense>
+        <section aria-labelledby="quick-actions">
+          <div className="dashboard-section-heading">
+            <h2 id="quick-actions">Quick Actions</h2>
+            <p>Open a module to see your assigned access.</p>
           </div>
-        )}
-
-        <div className="form-actions">
-          {canManageUsers && (
-            <Link className="button button-secondary" href="/user-management">
-              User Management
-            </Link>
-          )}
-          <button
-            className="button button-primary"
-            disabled={isLoading || isSigningOut}
-            onClick={handleSignOut}
-            type="button"
-          >
-            {isSigningOut ? "Signing out..." : "Logout"}
-          </button>
-        </div>
-      </section>
-    </main>
+          <div className="dashboard-quick-grid">
+            {DASHBOARD_MODULES.map((item) => canAccessModule(actor, rights, item.code) ? (
+              <Link className="dashboard-quick-card" href={item.href} key={item.code} prefetch={false}>
+                <span className={`dashboard-quick-icon dashboard-icon-${item.color}`} aria-hidden="true">{item.icon}</span>
+                <strong>{item.name}</strong><span className="sr-only">{item.description}</span><small className="sr-only">Open module</small>
+              </Link>
+            ) : (
+              <article className="dashboard-quick-card dashboard-quick-card-disabled dashboard-quick-card-no-access" key={item.code}>
+                <span className={`dashboard-quick-icon dashboard-icon-${item.color}`} aria-hidden="true">{item.icon}</span>
+                <strong>{item.name}</strong><small className="sr-only">No permission</small>
+              </article>
+            ))}
+            {canManageUsers && (
+              <Link className="dashboard-quick-card" href="/user-management" prefetch={false}>
+                <span className="dashboard-quick-icon dashboard-icon-neutral" aria-hidden="true">UM</span>
+                <strong>User Management</strong><small className="sr-only">Manage users</small>
+              </Link>
+            )}
+            {actor.role === "superadmin" && (
+              <Link className="dashboard-quick-card" href="/system-settings" prefetch={false}>
+                <span className="dashboard-quick-icon dashboard-icon-neutral" aria-hidden="true">SS</span>
+                <strong>System Settings</strong><small className="sr-only">Open settings</small>
+              </Link>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }

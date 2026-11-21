@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getAuthProfile } from "@/lib/auth/profile";
+import { DASHBOARD_MODULES } from "@/lib/dashboard/modules";
 
 function redirectTo(
   request: NextRequest,
@@ -68,13 +69,19 @@ export async function proxy(request: NextRequest) {
   const isUserManagementRoute =
     pathname === "/user-management" ||
     pathname.startsWith("/user-management/");
+  const isModuleRoute = DASHBOARD_MODULES.some(
+    (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+  );
   const isProtectedRoute =
     pathname === "/dashboard" ||
     pathname === "/session" ||
+    pathname === "/no-access" ||
+    pathname === "/system-settings" ||
+    pathname.startsWith("/system-settings/") ||
     pathname === "/set-password" ||
 
     pathname === "/reset-password/confirm" ||
-    isUserManagementRoute;
+    isUserManagementRoute || isModuleRoute;
 
   if (!user) {
     if (isProtectedRoute || pathname === "/") {
@@ -141,7 +148,7 @@ export async function proxy(request: NextRequest) {
     profile.role !== "admin" &&
     profile.role !== "superadmin"
   ) {
-    return redirectTo(request, response, "/session", "forbidden");
+    return redirectTo(request, response, "/no-access");
   }
 
   if (pathname === "/set-password") {

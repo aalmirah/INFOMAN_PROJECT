@@ -61,13 +61,13 @@ export async function POST(
   request: Request,
   context: RouteContext,
 ): Promise<Response> {
-  if (!isSameOriginRequest(request)) {
-    return json({ error: "Request origin is not allowed." }, 403);
-  }
-
   const result = await getSuperadminActor();
   if (!result.actor) {
     return json({ error: result.error }, result.status);
+  }
+
+  if (!isSameOriginRequest(request)) {
+    return json({ error: "Request origin is not allowed." }, 403);
   }
 
   const { userId } = await context.params;
