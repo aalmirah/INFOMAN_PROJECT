@@ -24,18 +24,18 @@ export async function PATCH(
   request: Request,
   context: RouteContext,
 ): Promise<Response> {
-  if (!isSameOriginRequest(request)) {
-    return Response.json(
-      { error: "User update request origin is not allowed." },
-      { status: 403 },
-    );
-  }
-
   const result = await getUserManagementActor();
   if (!result.actor) {
     return Response.json(
       { error: result.error },
       { status: result.status },
+    );
+  }
+
+  if (!isSameOriginRequest(request)) {
+    return Response.json(
+      { error: "User update request origin is not allowed." },
+      { status: 403 },
     );
   }
 

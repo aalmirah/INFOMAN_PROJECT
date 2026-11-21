@@ -180,19 +180,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!isSameOriginRequest(request)) {
-    return Response.json(
-      { error: "User creation request origin is not allowed." },
-      { status: 403 },
-    );
-  }
-
   const result = await getUserManagementActor();
 
   if (!result.actor) {
     return Response.json(
       { error: result.error },
       { status: result.status },
+    );
+  }
+
+  if (!isSameOriginRequest(request)) {
+    return Response.json(
+      { error: "User creation request origin is not allowed." },
+      { status: 403 },
     );
   }
 

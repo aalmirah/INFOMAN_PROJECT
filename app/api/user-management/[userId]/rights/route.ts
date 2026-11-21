@@ -175,11 +175,11 @@ export async function GET(_request: Request, context: RouteContext): Promise<Res
 }
 
 export async function PUT(request: Request, context: RouteContext): Promise<Response> {
+  const result = await getUserManagementActor();
+  if (!result.actor) return Response.json({ error: result.error }, { status: result.status });
   if (!isSameOriginRequest(request)) {
     return Response.json({ error: "Rights request origin is not allowed." }, { status: 403 });
   }
-  const result = await getUserManagementActor();
-  if (!result.actor) return Response.json({ error: result.error }, { status: result.status });
   if (process.env.DEV07_RIGHTS_MANAGEMENT_ENABLED !== "true") {
     return Response.json({ error: "Rights Management is not enabled." }, { status: 503 });
   }

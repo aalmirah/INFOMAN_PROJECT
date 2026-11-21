@@ -82,8 +82,8 @@ The password-change trigger clears `profiles.must_change_password` when the
 password is changed through Supabase Auth. Newly registered users remain
 subject to the existing `approval_status` check. Supabase Auth applies its
 configured password and request rate limits; do not implement password hashing
-in the app. Until the Dashboard exists, approved users who finish setup are
-sent to `/session`, a temporary page with a Logout button. Until a Superadmin UI
+in the app. Approved users who finish setup are sent to the dashboard at
+`/session`. Until a Superadmin UI
 exists, the DB Admin may review
 [`supabase/migration/dev03_approve_pending_user.sql`](./supabase/migration/dev03_approve_pending_user.sql)
 as a per-user approval template. After registration, the browser establishes a
@@ -102,6 +102,27 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+### DEV08 Dashboard authorization
+
+The dashboard and User Management require an approved, active, unblocked
+profile and a linked active, unblocked ERP account with a matching active role.
+Accounts without a valid link must be resolved by an administrator. The
+dashboard checks active rights and modules against `v_user_effective_rights`
+on the server. Module access does not grant individual actions; future module
+pages and API handlers must independently call `authorizeModule` or
+`authorizeRight` as appropriate, returning 401/403 for denied API requests.
+
+Business module landing pages show the current account's active permission
+assignments; module operations and reports are not yet implemented. System
+Settings is restricted to Superadmins and links to the existing User Management
+page; other settings controls are not implemented. User Management remains
+available to eligible Admins and Superadmins. Admins and Superadmins can see
+all four counts. Regular users see product and employee counts only with the
+corresponding Product Master and Active Employees report rights; customer and
+sales totals remain restricted until a suitable read permission is confirmed.
+Count failures are shown as unavailable rather than as zero. Dashboard and
+module pages refresh access on focus and every 30 seconds while visible.
 
 ### DEV07 Rights Management
 

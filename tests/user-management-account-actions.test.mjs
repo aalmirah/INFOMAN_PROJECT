@@ -82,18 +82,14 @@ function profileClient(target, calls = []) {
 }
 
 function compileUserManagementAuth(target) {
-  const supabase = profileClient(target);
   return compile("../lib/auth/user-management.ts", {
     "server-only": {},
-    "@supabase/ssr": {
-      createServerClient: () => ({
-        auth: { getUser: async () => ({ data: { user: { id: target.id } }, error: null }) },
+    "@/lib/auth/rights-authorization": {
+      authorizeActor: async () => ({
+        allowed: true,
+        actor: { authUserId: target.id, erpUserId: 1, role: target.role, name: "Test" },
       }),
     },
-    "next/headers": {
-      cookies: async () => ({ getAll: () => [], set() {} }),
-    },
-    "@/lib/supabase/admin": { getSupabaseAdminClient: () => supabase },
   }, {
     process: {
       env: {
@@ -163,6 +159,20 @@ test("Regular Users cannot obtain a User Management actor", async () => {
   const result = await auth.getUserManagementActor();
   assert.equal(result.actor, null);
   assert.equal(result.status, 403);
+});
+
+test("User Management propagates unauthenticated and denied account results", async () => {
+  for (const status of [401, 403, 503]) {
+    const auth = compile("../lib/auth/user-management.ts", {
+      "server-only": {},
+      "@/lib/auth/rights-authorization": {
+        authorizeActor: async () => ({ allowed: false, status, error: "Denied" }),
+      },
+    });
+    const result = await auth.getUserManagementActor();
+    assert.equal(result.actor, null);
+    assert.equal(result.status, status);
+  }
 });
 
 test("Superadmin can update another Superadmin, but cannot update themself", async () => {
