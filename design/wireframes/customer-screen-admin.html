@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Hope, Inc. ERP customer screen wireframe">
+  <title>Customer Screen Admin | Hope, Inc. ERP</title>
+  <style>
+    :root { --white: #FFFFFF; --page: #F8FAFC; --line: #E5E7EB; --line-dark: #D1D5DB; --muted: #9CA3AF; --soft: #4B5563; --ink: #111827; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--page); font: 14px/1.45 Arial, sans-serif; }
+    .shell { min-height: 100vh; display: grid; grid-template-rows: 64px 1fr; }
+    .topbar { display: grid; grid-template-columns: 280px 1fr 280px; align-items: center; padding: 0 24px; background: var(--white); border-bottom: 1px solid var(--line-dark); }
+    .brand, .role { font-weight: 700; }
+    .brand-mark { display: inline-grid; width: 30px; height: 30px; margin-right: 8px; place-items: center; border: 2px solid var(--ink); font-size: 18px; }
+    .context { justify-self: start; font-weight: 700; }
+    .role { justify-self: end; color: var(--soft); font-size: 12px; }
+    .role-badge { display: inline-block; margin-left: 8px; padding: 7px 10px; border: 1px solid var(--ink); background: var(--ink); color: var(--white); }
+    .workspace { display: grid; grid-template-columns: 220px minmax(0, 1fr); }
+    aside { padding: 24px 16px; background: var(--white); border-right: 1px solid var(--line-dark); }
+    .nav-section { margin-bottom: 26px; }
+    .nav-label, .eyebrow, th { color: var(--soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .nav-label { margin: 0 12px 8px; color: var(--muted); }
+    .nav-item { padding: 10px 12px; }
+    .nav-item.active { background: var(--line); font-weight: 700; }
+    main { min-width: 0; padding: 36px clamp(20px, 4vw, 56px); }
+    .header, .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .header { margin-bottom: 24px; }
+    h1 { margin: 0; font-size: 30px; }
+    .wire-button, .tab, .search { min-height: 40px; border: 1px solid var(--line-dark); background: var(--white); }
+    .wire-button { padding: 0 16px; background: var(--ink); color: var(--white); font-weight: 700; }
+    .tabs { display: flex; gap: 4px; }
+    .tab { padding: 0 14px; font-weight: 700; }
+    .tab.active { background: var(--ink); color: var(--white); }
+    .search { width: 320px; padding: 0 12px; color: var(--muted); }
+    .table-frame { overflow-x: auto; margin-top: 16px; border: 1px solid var(--line-dark); background: var(--white); }
+    table { width: 100%; min-width: 850px; border-collapse: collapse; }
+    th { padding: 13px 14px; background: var(--page); text-align: left; }
+    td { height: 64px; padding: 14px; border-top: 1px solid var(--line); }
+    .blank { display: block; width: 90%; height: 12px; background: var(--line); }
+    .blank.short { width: 55%; }
+    .status { display: inline-block; width: 62px; height: 24px; border: 1px solid var(--soft); }
+    .action-box { display: inline-block; width: 58px; height: 28px; margin-right: 5px; border: 1px solid var(--line-dark); }
+    .inactive { background: var(--line); }
+    .modal-overlay { display: grid; place-items: center; margin-top: 36px; padding: 24px; background: var(--line); }
+    .modal-card { width: min(520px, 100%); padding: 24px; border: 1px solid var(--line-dark); border-radius: 8px; background: var(--white); box-shadow: 0 12px 24px rgba(17, 24, 39, .16); }
+    .modal-title { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; font-size: 22px; font-weight: 700; }
+    .modal-subtitle { margin: 0 0 24px; color: var(--soft); }
+    .close-box { color: var(--soft); font-size: 22px; font-weight: 400; }
+    .field { margin-top: 16px; }
+    .field-label { display: block; margin-bottom: 7px; font-weight: 700; }
+    .field-box { height: 44px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); }
+    .modal-actions { display: flex; flex-direction: row-reverse; gap: 10px; margin-top: 20px; }
+    .modal-actions .action-box { width: auto; min-width: 100px; height: 42px; margin: 0; padding: 10px 18px; text-align: center; font-weight: 700; }
+    .modal-actions .save { min-width: 250px; border-color: var(--ink); background: var(--ink); color: var(--white); }
+    @media (max-width: 760px) { .topbar { grid-template-columns: 1fr auto; padding: 12px 16px; } .context { grid-column: 1 / -1; grid-row: 2; justify-self: start; } .workspace { grid-template-columns: 1fr; } aside { display: flex; gap: 18px; overflow-x: auto; padding: 12px 16px; } .nav-section { display: flex; gap: 4px; margin: 0; white-space: nowrap; } .nav-label { margin: 10px 4px 0 0; } main { padding: 24px 16px; } .header, .toolbar { align-items: stretch; flex-direction: column; } .search { width: 100%; } .modal-actions .save { min-width: 0; flex: 1; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"><div class="brand"><span class="brand-mark">H</span>Hope, Inc. ERP</div><div class="context">Customer Management</div><div class="role"><span class="role-badge">ADMIN</span></div></header>
+    <div class="workspace">
+      <aside>
+        <div class="nav-section"><p class="nav-label">MAIN</p><div class="nav-item">Dashboard</div></div>
+        <div class="nav-section"><p class="nav-label">MODULES</p><div class="nav-item active">Customers</div><div class="nav-item">Products</div><div class="nav-item">Sales</div><div class="nav-item">Human Resources</div></div>
+        <div class="nav-section"><p class="nav-label">ADMINISTRATION</p><div class="nav-item">User Management</div></div>
+      </aside>
+      <main>
+        <div class="header"><div><h1>Customer Management</h1></div><div class="wire-button">+ Add Customer</div></div>
+        <div class="toolbar"><div class="tabs"><div class="tab active">Active (0)</div><div class="tab">Inactive (0)</div><div class="tab">All (0)</div></div><div class="search">Search customers...</div></div>
+        <div class="table-frame"><table><thead><tr><th>CUST NO</th><th>CUSTOMER NAME</th><th>ADDRESS</th><th>PAY TERMS</th><th>STATUS</th><th>STAMP</th><th>ACTIONS</th></tr></thead><tbody>
+          <tr><td><span class="blank short"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank short"></span></td><td><span class="status"></span></td><td><span class="blank"></span></td><td><span class="action-box"></span><span class="action-box"></span></td></tr>
+          <tr><td><span class="blank short"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank short"></span></td><td><span class="status"></span></td><td><span class="blank"></span></td><td><span class="action-box"></span><span class="action-box"></span></td></tr>
+          <tr><td><span class="blank short"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank short"></span></td><td><span class="status"></span></td><td><span class="blank"></span></td><td><span class="action-box"></span><span class="action-box"></span></td></tr>
+          <tr><td><span class="blank short"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank short"></span></td><td><span class="status"></span></td><td><span class="blank"></span></td><td><span class="action-box"></span><span class="action-box"></span></td></tr>
+          <tr><td><span class="blank short"></span></td><td><span class="blank"></span></td><td><span class="blank"></span></td><td><span class="blank short"></span></td><td><span class="status"></span></td><td><span class="blank"></span></td><td><span class="action-box"></span><span class="action-box"></span></td></tr>
+        </tbody></table></div>
+        <div class="modal-overlay" aria-label="Add Customer modal wireframe"><section class="modal-card"><div class="modal-title">Add Customer <span class="close-box">&times;</span></div><p class="modal-subtitle">Enter new customer details</p><div class="field"><span class="field-label">Customer No.</span><div class="field-box">e.g. C-001</div></div><div class="field"><span class="field-label">Customer Name</span><div class="field-box">Company or person name</div></div><div class="field"><span class="field-label">Address</span><div class="field-box">Full address</div></div><div class="field"><span class="field-label">Payment Terms</span><div class="field-box">e.g. Net 30, COD, Prepaid</div></div><div class="modal-actions"><span class="action-box cancel">Cancel</span><span class="action-box save">Save Customer</span></div></section></div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
