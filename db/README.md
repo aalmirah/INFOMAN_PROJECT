@@ -1,129 +1,176 @@
-# Student database setup (PostgreSQL)
+# Student database setup (Supabase/PostgreSQL)
 
-This project uses PostgreSQL. The existing SQL in `database/` is project material;
-new, versioned schema changes belong in `db/migrations/`. No application-table
-migrations are included yet.
+Supabase is the team's hosted PostgreSQL database; it is not a different SQL
+engine. This project uses the PostgreSQL protocol and a Node.js migration
+runner. Follow these steps on Windows, macOS, or Linux. The npm commands are
+the same on all three operating systems. No Docker or local database server is
+required for the shared Supabase development project.
 
 ## Repository layout
 
 ```text
-INFOMAN_PROJECT/
-├── .env.example           # Safe connection-setting template
-├── .gitignore             # Excludes .env and dependencies
-├── package.json           # Cross-platform database commands
-├── database/              # Existing SQL files; not run by the migration runner
-└── db/
-    ├── README.md           # This student setup guide
-    ├── migrations/         # Ordered schema changes (empty for now)
-    ├── seeds/              # Repeat-safe development seed SQL
-    └── scripts/
-        ├── migrate.js      # migrate, status, and guarded reset
-        └── seed.js         # Runs seed files
+.
+|-- .env.example
+|-- .gitignore
+|-- package.json
+|-- db
+|   |-- README.md
+|   |-- migrations
+|   |   |-- 001_hope_base_tables.sql
+|   |   |-- 002_hope_sample_data.sql
+|   |   |-- 003_user_management.sql
+|   |   |-- 003_user_management.md
+|   |   |-- 004_password_reset_token.sql
+|   |   |-- 004_password_reset_token.md
+|   |   |-- 005_customer_product_active_views.sql
+|   |   |-- 006_customers_products_access.sql
+|   |   `-- 006_customers_products_access.md
+|   |-- README.md
+|   |-- seeds
+|   |   |-- 001_default_roles_modules_rights.sql
+|   |   |-- team.example.csv
+|   |   `-- team.csv                 (local only; ignored by Git)
+|   |-- scripts
+|   |   |-- migrate.js
+|   |   |-- issue-setup-links.js
+|   |   |-- seed.js
+|   |   |-- seed-team.js
+|   |   |-- seed-demo.js
+|   |   `-- verify.js
+`-- node_modules/                 (local only; ignored by Git)
 ```
 
-`.env` is created locally from `.env.example` and is not committed.
+The base schema, sample records, and user-management schema are in separate
+migrations. See [migrations/README.md](migrations/README.md) for Task 2 source
+limitations and assumptions, and
+[migrations/003_user_management.md](migrations/003_user_management.md) for the
+Task 3 design, ERD, authorization notes, and verification queries. The optional
+token table in
+[migrations/004_password_reset_token.md](migrations/004_password_reset_token.md)
+covers first-password setup and password recovery. The optional `db/seeds`
+directory remains for additional repeat-safe seed scripts.
+Sprint 2 customer, product, and price-history SQL access is documented in
+[migrations/006_customers_products_access.md](migrations/006_customers_products_access.md).
+
+The repeat-safe default role/module/right catalogue is in
+`db/seeds/001_default_roles_modules_rights.sql`. For team bootstrap, copy
+`db/seeds/team.example.csv` to the ignored `db/seeds/team.csv`, replace its
+fake rows locally with the team's names and email addresses, and never commit
+that file. `.env` and `db/seeds/team.csv` are ignored by Git.
+
+The relevant `.gitignore` rules are:
+
+```gitignore
+.env
+.env.*
+!.env.example
+db/seeds/team.csv
+```
 
 ## Team database approach
 
-| Approach | Benefits | Trade-offs |
+| Approach | Advantages | Trade-offs |
 |---|---|---|
-| Each student installs PostgreSQL locally | No shared data, works offline, easy to reset | Everyone must install and maintain a compatible server |
-| One shared hosted development database | Simple onboarding and shared integration data | Requires network access; mistakes affect the whole team; free tiers can change |
-| Local development plus shared integration | Fast, private daily work and one place to verify integration | Requires a local install and care to keep the hosted database development-only |
+| (a) Each student installs PostgreSQL locally | Isolated data; safe to reset; works offline | Requires installing and updating the same PostgreSQL major version |
+| (b) One shared hosted Supabase development project | Matches the team's existing service; no local server install; easy to compare integration results | Shared data/credentials, network limits, and risk from destructive commands |
+| (c) Local for daily work, shared Supabase for integration | Safe local development plus a common integration target | Requires both setups and careful protection of the shared project |
 
-**Recommendation: (c), local for daily work and a shared hosted development
-database for integration.** Use local PostgreSQL as the default in the steps
-below. A free-tier hosted PostgreSQL service such as Supabase can be used for
-team integration, subject to the provider's current limits. Both environments
-must use the same committed migration files; do not make manual schema changes.
-Keep hosted credentials private, and never run `db:reset` against a shared
-database unless its host was explicitly allowlisted and the team has agreed.
+**Team default: (b), the team's Supabase development project.** Use a
+development project only, never production. Supabase runs PostgreSQL, so these
+same numbered migrations create the same schema on Supabase and on a local
+PostgreSQL installation. Do not edit the schema manually; add migrations in
+filename order. The shared project is not disposable: coordinate before
+running seeds, and never run `db:reset` against it. Students can optionally
+install PostgreSQL locally for isolated testing.
 
-## Setup on Windows, macOS, or Linux
+## Setup
 
-Use the same commands in PowerShell, Terminal, or a shell. Install a supported
-PostgreSQL server (version 15 or newer recommended) and Node.js 18 or newer.
-The project uses PostgreSQL's native SQL and Node's cross-platform npm scripts;
-no Docker or shell-specific helper is needed.
+### 1. Get the tools and Supabase development project
 
-### 1. Install PostgreSQL
+Install **Node.js 20 LTS or newer** and get access to the team's Supabase
+development project. A local PostgreSQL server and `psql` are optional for
+this shared-database setup.
 
-- **Windows:** install PostgreSQL using the official interactive installer at
-  <https://www.postgresql.org/download/windows/>.
-- **macOS:** install PostgreSQL using the official macOS options at
-  <https://www.postgresql.org/download/macos/>.
-- **Linux:** install PostgreSQL using your distribution's package manager, as
-  linked from <https://www.postgresql.org/download/linux/>.
+Check Node.js:
 
-Keep the server running on port `5432` (the default).
-
-**Expected:** the PostgreSQL server is running and accepts local connections on
-port `5432`. The installer may also provide `psql`; otherwise use a PostgreSQL
-client such as pgAdmin.
-
-### 2. Create a development database and app user
-
-Connect as the PostgreSQL administrator in `psql` or pgAdmin. Replace both
-password placeholders with strong local-only passwords; do not save them in
-SQL files or commit them. Execute:
-
-```sql
-CREATE ROLE infoman_app LOGIN PASSWORD 'replace-with-a-strong-app-password';
-CREATE DATABASE infoman_project;
-GRANT CONNECT ON DATABASE infoman_project TO infoman_app;
+```text
+node --version
+npm --version
 ```
 
-Connect to `infoman_project` as the administrator and run:
+Expected: Node reports `v20` or newer and npm reports its version. If
+PowerShell blocks the `npm` shim on Windows, run the same commands below as
+`npm.cmd run ...`.
+
+### 2. Get a development database login
+
+The team lead should provide the Supabase development project's database
+connection details from its **Connect** panel. Use a development-only login
+with the permissions needed to run the migrations and seeds; do not use a
+production credential or the application's runtime credential. If the team
+creates a dedicated migration role, it needs to connect to the project
+database and create objects in the `public` schema. Keep its password private.
+
+If the team lead has not created a migration login, they can run this once in
+the development project's Supabase SQL Editor, replacing the placeholder with
+a strong password and sharing it only through the team's approved secret
+channel:
 
 ```sql
-GRANT USAGE, CREATE ON SCHEMA public TO infoman_app;
+CREATE ROLE hope_migrator LOGIN PASSWORD 'replace-with-a-strong-password';
+GRANT CONNECT ON DATABASE postgres TO hope_migrator;
+GRANT USAGE, CREATE ON SCHEMA public TO hope_migrator;
 ```
 
-The application role can connect and create project objects in this database,
-but cannot drop the database or create other databases. The optional reset
-command requires separate administrator credentials with `CREATEDB` and
-permission to assign the app role as database owner; do not give those
-credentials to the application.
-
-**Expected:** the database `infoman_project` and login role `infoman_app` exist,
-and the role has `USAGE` and `CREATE` on its `public` schema.
+Expected: `CREATE ROLE` and two `GRANT` results. This login can create and
+change the project's schema but is not a database administrator; all teammates
+must use the same migration login so later migrations can change objects it
+created. Do not use it as the application's runtime login. If the role already
+exists or migrations have already been run by a different role, ask the team
+lead rather than changing ownership or dropping objects. The reset command is
+intentionally separate and destructive; it is not for the shared Supabase
+project.
 
 ### 3. Clone the repository
 
-If you have not cloned it yet, use your Git client or run:
-
 ```text
-git clone <repository-url>
+git clone https://github.com/aalmirah/INFOMAN_PROJECT.git
 cd INFOMAN_PROJECT
 ```
 
-If you already have the project, open a terminal in its repository folder.
+Expected: Git checks out the project and the working directory is the
+repository root (the folder containing `package.json`).
 
-**Expected:** the current folder contains `package.json`, `database/`, and
-`db/`.
+### 4. Create your private `.env`
 
-### 4. Configure your private connection
+From the repository root, copy the committed template with this cross-platform
+Node command:
 
-Copy `.env.example` to `.env` using your editor or file manager. This avoids
-shell-specific copy commands on Windows, macOS, and Linux. Edit `.env` with the
-database name, app role, and password from step 2. Keep `DB_ENV=development`,
-`DB_HOST=localhost`, `DB_SSL=disable`, and leave `DB_RESET_ALLOWED_HOSTS` empty
-for local work. Leave reset credentials empty unless you plan to use the reset
-command.
+```text
+node -e "require('node:fs').copyFileSync('.env.example', '.env')"
+```
 
-**Expected:** `.env` contains your local settings and is ignored by Git; the
-committed `.env.example` contains placeholders only.
+Expected: no output and a new `.env` file. Open `.env` in a text editor, set
+the Supabase development connection values in `DB_HOST`, `DB_PORT`, `DB_NAME`,
+`DB_USER`, and `DB_PASSWORD`; keep `DB_ENV=development` and `DB_SSL=require`.
+Use the database host and username exactly as shown in the Supabase **Connect**
+panel (pooler connection settings may require a project-qualified username).
+Only after the team lead confirms the shared project is the development
+target, set `DB_ALLOWED_DEV_HOSTS` to its exact `DB_HOST` to enable the
+development-only seed commands. Do not set reset credentials for the shared
+project. `.env` is ignored by Git; never commit it or send its contents to
+teammates.
 
 ### 5. Install project dependencies
 
-From the repository folder, run:
+Run from the repository root:
 
 ```text
-npm install
+npm ci
 ```
 
-**Expected:** npm completes successfully and installs the PostgreSQL driver and
-the environment-file loader.
+Expected: npm installs the locked `pg` and `dotenv` dependencies and finishes
+without errors.
 
 ### 6. Apply migrations
 
@@ -131,74 +178,196 @@ the environment-file loader.
 npm run db:migrate
 ```
 
-**Expected on a new project:** `Database is up to date. No pending migrations.`
-The runner creates `schema_migrations`; no application tables are created yet.
-When migration files are added later, each pending file is applied in filename
-order in its own transaction and its SHA-256 checksum is stored.
+Expected on a new project database:
 
-### 7. Run seed files
+```text
+Applied 001_hope_base_tables.sql
+Applied 002_hope_sample_data.sql
+Applied 003_user_management.sql
+Applied 004_password_reset_token.sql
+Applied 005_customer_product_active_views.sql
+Applied 006_customers_products_access.sql
+Migrations complete. Applied 6 migration(s).
+```
+
+### 7. Load seed data
 
 ```text
 npm run db:seed
 ```
 
-**Expected now:** `No seed files found.` When seed files are added, they run in
-filename order in separate transactions. Every seed must be repeat-safe,
-normally using `INSERT ... ON CONFLICT DO NOTHING` or an upsert, so rerunning
-this command does not duplicate or damage data.
+Expected: `Ran 001_default_roles_modules_rights.sql` and `Seeding complete.
+Ran 1 seed file(s).` The command can be run repeatedly. It sets up the
+Superadmin, Admin, and User roles, five modules, and all 36 rights.
 
-### 8. Verify the migration status
+For one Superadmin account per teammate, first copy the example CSV:
+
+```text
+npm run db:seed:team
+```
+
+The command reads `db/seeds/team.csv`, inserts users with no password and
+`must_set_password=true`, and logs only a processed count. If the file is
+missing, copy `db/seeds/team.example.csv` to `db/seeds/team.csv` and edit the
+copy locally. Like the other bootstrap scripts, it requires a development
+database on localhost or an explicitly allowed development host. Do not
+commit the real roster.
+
+The optional Lisa Park (Admin) and Alex Rivera (User) demo seed is restricted
+to `DB_ENV=development` and localhost or a host explicitly listed in
+`DB_ALLOWED_DEV_HOSTS`. For a hosted development database only, add its exact
+hostname to `DB_ALLOWED_DEV_HOSTS` as a comma-separated list; leave it blank
+for localhost:
+
+```text
+npm run db:seed:demo
+```
+
+It creates no passwords and grants three sample rights to Lisa and two to
+Alex. Omit this command for non-demo development databases.
+
+## First-password setup links
+
+Set `APP_BASE_URL` to the app's local URL and, if needed, configure
+`SET_PASSWORD_TOKEN_TTL` (default `24 hours`). To issue/reissue setup links for
+all active, unblocked accounts with no password:
+
+```text
+npm run db:issue-setup-links
+```
+
+This command is restricted to development DB targets. It invalidates any
+previous active setup link for each account, stores only a SHA-256 token hash,
+then prints each new one-time link to the console. Deliver the links securely;
+do not save, redirect, screenshot, or commit this output. The app's
+`/set-password?token=...` page hashes the submitted token, validates it with
+purpose `set_password`, and, in one transaction, conditionally consumes that
+token while storing the password hash and setting `must_set_password=false`.
+Reject the submission if the conditional token update returns no row. Use a
+password-hashing algorithm such as Argon2id in the app; never put the password
+or raw token in logs.
+
+## Pre-commit SQL secret check
+
+After staging changes, run:
+
+```text
+npm run db:check-sql-secrets
+```
+
+It scans staged SQL and fails if it finds a bcrypt/Argon2 hash or a
+case-insensitive `password=` assignment. Use it as a pre-commit check; do not
+stage real credentials or roster data.
+
+## Database verification checklist
+
+After migrations and `npm run db:seed`, run `npm run db:verify`. It must report
+3 active roles, 5 active modules, 36 active rights, and these exact counts:
+
+| Module | Active rights |
+|---|---:|
+| Customer | 3 |
+| Product | 6 |
+| Human Resources | 13 |
+| Sales | 7 |
+| Reports | 7 |
+
+The same counts can be checked directly:
+
+```sql
+SELECT module_name, active_right_count
+FROM v_module_right_counts
+ORDER BY module_code;
+
+SELECT count(*) AS total_active_rights
+FROM rights
+WHERE status = 'Active';
+-- 36
+```
+
+After the team seed, the inserted roster accounts have a NULL password hash,
+`must_set_password=true`, and the Superadmin role; rerunning the seed does not
+reset an already-set password. The optional demo seed creates Lisa Park as
+Admin and Alex Rivera as User, with five active sample permission rows and no
+new passwords. After setup-link issuance, each eligible account should have
+one active unused `set_password` token; a second run leaves one active token
+per eligible account and inactivates each prior token. The check script should
+pass when staged SQL contains no password assignments or password hashes.
+
+### 8. Verify the database
 
 ```text
 npm run db:status
 ```
 
-**Expected on a new project:** `No migration files found.` After the first
-migration is added and applied, status lists it as `applied`; unapplied files
-show as `pending`.
+Expected after all current migrations have been applied:
 
-## Commands
+```text
+applied  001_hope_base_tables.sql
+applied  002_hope_sample_data.sql
+applied  003_user_management.sql
+applied  004_password_reset_token.sql
+applied  005_customer_product_active_views.sql
+applied  006_customers_products_access.sql
+Status complete. 0 pending.
+```
+
+Run the row-count, sample-data, and Sprint 2 role-filtering checks:
+
+```text
+npm run db:verify
+```
+
+Expected counts: employee 4, job 4, department 4, jobhistory 1, customer 5,
+product 5, pricehist 9, sales 4, salesdetail 13, payment 4. The checks should
+all report `PASS`: T-001 234.50, T-002 140.00, T-003 510.00, active sales
+884.50, P-003 current price 28.00, P-004 has no current price, C-001..C-005
+and P-001..P-005 status assertions, Admin/Superadmin/User view filtering,
+absence of `status`/`stamp` from User views, and rejected DELETE/TRUNCATE
+attempts. `db:verify` exits non-zero if any assertion fails.
+
+To confirm the connected database version, run `SHOW server_version;` in the
+Supabase SQL Editor. Expected: PostgreSQL `16` or newer.
+
+## Available commands
 
 | Command | Purpose |
 |---|---|
-| `npm run db:migrate` | Apply pending migrations and reject changed/missing applied files |
-| `npm run db:status` | Show each migration as applied or pending |
-| `npm run db:seed` | Run repeat-safe SQL seed files |
-| `npm run db:reset` | Drop and recreate a development database after safety checks and typed confirmation |
+| `npm run db:migrate` | Apply pending numbered SQL migrations in filename order |
+| `npm run db:status` | Show applied and pending migrations |
+| `npm run db:seed` | Run repeat-safe SQL seed files in filename order |
+| `npm run db:verify` | Print table row counts and verify sample totals, prices, view access, soft-delete guards, and foreign keys |
+| `npm run db:reset` | Drop and recreate the configured development database after confirmation |
+| `npm run db:seed:team` | Insert/update Superadmin accounts from ignored `db/seeds/team.csv` |
+| `npm run db:seed:demo` | Add demo users and permissions on an explicitly allowed development host only |
+| `npm run db:issue-setup-links` | Issue one-time console-only first-password links for eligible accounts |
+| `npm run db:check-sql-secrets` | Check staged SQL for password assignments and password hashes |
 
-For hosted PostgreSQL that requires TLS, set `DB_SSL=require`. Reset refuses
-hosts other than `localhost`, `127.0.0.1`, or `::1`, unless the exact host is
-explicitly added to `DB_RESET_ALLOWED_HOSTS`. Reset also requires
-`DB_ENV=development` and typed confirmation of `DB_NAME`. To reset locally,
-set `DB_RESET_USER` and `DB_RESET_PASSWORD` to a development administrator
-account; those credentials must never be committed.
+Each migration runs in its own transaction. The runner records the migration
+filename and SHA-256 checksum in `schema_migrations`; it refuses to continue
+if an applied file changes or disappears. The reset command requires
+`DB_ENV=development`, asks you to type the exact database name, refuses
+protected PostgreSQL databases, and refuses every host except localhost or
+one explicitly listed in `DB_RESET_ALLOWED_HOSTS`. Use reset only for a
+disposable local database; do not add the shared Supabase host to this
+allowlist.
 
 ## Troubleshooting
 
-| Problem | What to check |
+| Problem | What to check / do |
 |---|---|
-| PowerShell blocks `npm.ps1` | Use `npm.cmd` in place of `npm` in the same commands (for example, `npm.cmd run db:migrate`), or open Command Prompt. No execution-policy change is required. |
-| Port in use | Another PostgreSQL service may already be using `5432`. Stop the duplicate service or set `DB_PORT` to the actual PostgreSQL port in `.env`. |
-| Authentication failed | Check `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`; confirm the role can log in and that the password is current. |
-| Permission denied | Confirm `infoman_app` has `CONNECT` on the database and `USAGE, CREATE` on schema `public`. Reset needs a separate role with `CREATEDB` and suitable ownership privileges. |
-| Migration checksum mismatch | Do not edit an applied migration. Restore its exact committed contents; make a new migration for any schema change. |
-| Wrong engine version | Check the server version with `SELECT version();` in `psql` or pgAdmin. Install PostgreSQL 15 or newer and point `.env` at that server. |
+| Port in use | For optional local PostgreSQL, check which process uses the port and set `DB_PORT` to the server's actual port. For Supabase, use the port shown in the project's Connect panel. |
+| Authentication failed | Check `DB_USER`, `DB_PASSWORD`, and `DB_HOST` in `.env`; confirm the role can log in and that the password matches. Do not paste credentials into chat or Git. |
+| Permission denied | Confirm the migration login can connect and create objects in the `public` schema. Use the same migration login for all teammates so it owns the objects it creates; ask the team lead to resolve existing object ownership. Never use reset credentials on the shared Supabase project. |
+| Migration checksum mismatch | Do not edit an applied migration. Restore the exact file from version control, then put the schema change in a new migration. |
+| Wrong engine version | Run `SHOW server_version;` in the Supabase SQL Editor. Supabase is PostgreSQL; use PostgreSQL 16 or newer for optional local testing and keep the same major version across local environments. |
 
 ## Team rules
 
-1. Never edit or rename an applied migration. Add a new migration instead.
-2. Keep one migration per pull request so schema changes are easy to review.
-3. Pull the latest changes before choosing a migration number.
-4. Name migrations with a unique, zero-padded number and description, for
-   example `001_create_example.sql`. Files run in lexical filename order.
-   Each file is wrapped in a transaction; do not put `BEGIN`/`COMMIT` in the
-   file or use statements that PostgreSQL disallows inside a transaction.
-5. If two people choose the same number, coordinate before merging. The author
-   whose migration is still unapplied should rename it to the next unused
-   number, update its pull request, and regenerate any references. Never rename
-   a migration after it has been applied by anyone; create a follow-up migration
-   instead.
-6. Never commit `.env`, passwords, connection strings, or hosted credentials.
-   Commit only placeholders in `.env.example`.
-7. Keep migrations compatible across local and shared development databases;
-   never rely on manual schema edits or an environment-specific migration.
+1. **Never edit an applied migration.** Add a new migration file instead.
+2. Keep **one migration per pull request** so schema changes are reviewable.
+3. **Pull the latest changes before choosing a migration number.**
+4. If two people chose the same number, coordinate before merging. Keep the
+   number on the migration already merged/applied; rename the other
+   not-yet-applied migration to the next unused number, update any references,
+   and re-run `npm run db:status`. Never rename or edit an applied migration.

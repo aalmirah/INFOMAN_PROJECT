@@ -73,9 +73,21 @@ async function sqlFiles(directory) {
 }
 
 async function connect(config = connectionConfig()) {
-  const client = new Client(config);
-  await client.connect();
-  return client;
+  const client = new Client({ ...config, connectionTimeoutMillis: 10000 });
+  try {
+    await client.connect();
+    return client;
+  } catch (error) {
+    const details = Array.isArray(error.errors)
+      ? error.errors.map((cause) => cause.message).filter(Boolean).join('; ')
+      : error.message;
+    const connectionError = new Error(
+      `Could not connect to the database${error.code ? ` (${error.code})` : ''}: ${details || 'unknown connection error'}`,
+      { cause: error },
+    );
+    await client.end();
+    throw connectionError;
+  }
 }
 
 async function ensureMigrationTable(client) {

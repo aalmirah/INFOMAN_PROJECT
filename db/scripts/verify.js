@@ -37,7 +37,7 @@ function databaseConfig() {
 function report(label, actual, expected, failures) {
   const passed = actual === expected;
   const display = (value) => {
-    if (typeof value === 'number' && /total|price/i.test(label)) {
+    if (typeof value === 'number' && /total|P-003 current price|current price of P-003/i.test(label)) {
       return value.toFixed(2);
     }
     return String(value);
@@ -169,15 +169,15 @@ async function verifyCustomerProductAccess(client, failures) {
       },
       {
         label: 'customer truncate rejected',
-        sql: 'TRUNCATE TABLE public.customer',
+        sql: 'TRUNCATE TABLE public.customer CASCADE',
       },
       {
         label: 'product truncate rejected',
-        sql: 'TRUNCATE TABLE public.product',
+        sql: 'TRUNCATE TABLE public.product CASCADE',
       },
       {
         label: 'price-history truncate rejected',
-        sql: 'TRUNCATE TABLE public.pricehist',
+        sql: 'TRUNCATE TABLE public.pricehist CASCADE',
       },
     ];
     for (const [index, check] of deleteChecks.entries()) {

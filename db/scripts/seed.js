@@ -2,37 +2,10 @@
 
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const dotenv = require('dotenv');
-const { Client } = require('pg');
+const { connect, databaseConfig } = require('./lib/database');
 
 const ROOT = path.resolve(__dirname, '../..');
 const SEEDS_DIR = path.join(ROOT, 'db', 'seeds');
-dotenv.config({ path: path.join(ROOT, '.env'), quiet: true });
-
-function databaseConfig() {
-  const required = ['DB_HOST', 'DB_NAME', 'DB_USER'];
-  for (const name of required) {
-    if (!process.env[name]) {
-      throw new Error(`Missing ${name} in the repository .env file.`);
-    }
-  }
-  const port = Number(process.env.DB_PORT || 5432);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) {
-    throw new Error('DB_PORT must be an integer from 1 to 65535.');
-  }
-  const sslMode = (process.env.DB_SSL || 'disable').toLowerCase();
-  if (!['disable', 'require'].includes(sslMode)) {
-    throw new Error('DB_SSL must be either "disable" or "require".');
-  }
-  return {
-    host: process.env.DB_HOST,
-    port,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD || '',
-    ssl: sslMode === 'require' ? { rejectUnauthorized: true } : false,
-  };
-}
 
 async function main() {
   const entries = await fs.readdir(SEEDS_DIR, { withFileTypes: true });
@@ -56,8 +29,7 @@ async function main() {
     return;
   }
 
-  const client = new Client(databaseConfig());
-  await client.connect();
+  const client = await connect(databaseConfig());
   try {
     for (const filename of files) {
       const contents = await fs.readFile(path.join(SEEDS_DIR, filename), 'utf8');
